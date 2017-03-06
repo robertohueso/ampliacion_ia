@@ -100,6 +100,21 @@ class PSR:
 ## True
 ## >>> psr_n4.restricciones[(1,4)](4,1)
 ## False
+import itertools
+
+def n_reinas(n):
+    #Crea dominios
+    dominios = {}
+    for i in range(1, n + 1):
+        dominios[i] = list(range(1, n + 1))
+    #Crea restricciones
+    permutaciones = itertools.permutations(dominios.keys(), 2)
+    permutaciones = list(map(lambda x : tuple(sorted(x)), permutaciones))
+    rest_keys = list(set(permutaciones))
+    restricciones = {}
+    for key in rest_keys: 
+        restricciones[key] = lambda x, y, i = key[0], j = key[1]: (x != y) and abs(x - y) != abs(i - j)
+    return PSR(dominios, restricciones)
 
 ## ===================================================================
 ## Parte II: Algoritmo de consistencia de arcos AC3
