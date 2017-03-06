@@ -479,6 +479,18 @@ print(restricciones_incumplidas(psr_4, {1: 3, 2: 3, 3: 1, 4: 2}))
 ## >>> selecciona_variable(psr_n4, {1: 3, 2: 1, 3: 1, 4: 2}, None)
 ## 3
 
+def selecciona_variable(psr, asignacion, variable):
+    incumplidas = restricciones_incumplidas(psr, asignacion)
+    del(incumplidas[variable])
+    lista = [(key, incumplidas[key]) for key in incumplidas]
+    random.shuffle(lista)
+    print(lista)
+    maximo = max(lista, key = lambda x: x[1])
+    maximo = maximo[0]
+    return maximo
+
+#FIXME eliminar
+print(selecciona_variable(psr_4, {1: 3, 2: 1, 3: 1, 4: 2}, 3))
 ## ###################################################################
 ## (4) Definir una función cantidad_conflictos que, dados un PSR, una
 ## asignación, una variable (con dominio múltiple) y un valor del
