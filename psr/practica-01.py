@@ -516,6 +516,12 @@ print(selecciona_variable(psr_4, {1: 3, 2: 1, 3: 1, 4: 2}, 3))
 ## >>> cantidad_conflictos(psr_n4, {1: 3, 2: 3, 3: 1, 4: 2}, 3, 4)
 ## 1
 
+def cantidad_conflictos(psr, asignacion, variable, valor):
+    nueva_asignacion = copy.deepcopy(asignacion)
+    nueva_asignacion[variable] = valor
+    incumplidas = restricciones_incumplidas(psr, nueva_asignacion)
+    return incumplidas[variable]
+
 ## ###################################################################
 ## (5) Definir una función nuevo_valor que, dado un PSR, una
 ## asignación y una variable (con dominio múltiple); devuelva un valor
