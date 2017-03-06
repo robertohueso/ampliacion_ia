@@ -459,7 +459,7 @@ def restricciones_incumplidas(psr, asignacion):
     return restricciones
 
 #FIXME elimiar
-print(restricciones_incumplidas(psr_4, {1: 3, 2: 3, 3: 1, 4: 2}))
+#print(restricciones_incumplidas(psr_4, {1: 3, 2: 3, 3: 1, 4: 2}))
 ## ###################################################################
 ## (3) Definir una función selecciona_variable que, dado un PSR, una
 ## asignación y una variable; devuelva la variable (con dominio
@@ -490,7 +490,7 @@ def selecciona_variable(psr, asignacion, variable):
     return maximo
 
 #FIXME eliminar
-print(selecciona_variable(psr_4, {1: 3, 2: 1, 3: 1, 4: 2}, 3))
+#print(selecciona_variable(psr_4, {1: 3, 2: 1, 3: 1, 4: 2}, 3))
 ## ###################################################################
 ## (4) Definir una función cantidad_conflictos que, dados un PSR, una
 ## asignación, una variable (con dominio múltiple) y un valor del
@@ -553,6 +553,19 @@ def cantidad_conflictos(psr, asignacion, variable, valor):
 ## 4
 ## >>> nuevo_valor(psr_n4, {1: 3, 2: 3, 3: 1, 4: 2}, 1)
 ## 1
+
+def nuevo_valor(psr, asignacion, variable):
+    dominio = copy.copy(psr.dominios[variable])
+    dominio.remove(asignacion[variable])
+    nuevos_conflictos = []
+    for valor in dominio:
+        nuevos_conflictos.append((valor, cantidad_conflictos(psr,
+                                                            asignacion,
+                                                            variable,
+                                                            valor)))
+    random.shuffle(nuevos_conflictos)
+    nuevo_valor = min(nuevos_conflictos, key = lambda x: x[1])
+    return nuevo_valor[0]
 
 ## ###################################################################
 ## (6) Definir una función es_solucion que, dado un PSR y una
