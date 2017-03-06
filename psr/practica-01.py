@@ -576,6 +576,13 @@ def nuevo_valor(psr, asignacion, variable):
 ## >>> es_solucion(psr_n4, {1: 3, 2: 1, 3: 4, 4: 2})
 ## True
 
+def es_solucion(psr, asignacion):
+    incumplidas = restricciones_incumplidas(psr, asignacion)
+    for value in incumplidas.values():
+        if value > 0:
+            return False
+    return True
+
 ## ###################################################################
 ## (7) Definir una función reparacion_heuristica que, dado un PSR y un
 ## número de iteraciones, aplique el algoritmo de reparación
