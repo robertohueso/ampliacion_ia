@@ -166,6 +166,13 @@ def n_reinas(n):
 ## [(1, 2), (2, 1), (1, 3), (3, 1), (2, 3), (3, 2), (3, 4), (4, 3),
 ##  (2, 4), (4, 2), (1, 4), (4, 1)]
 
+def arcos(psr):
+    arcos = []
+    for key in psr.restricciones:
+        arcos.append(key)
+        arcos.append(tuple(reversed(key)))
+    return arcos
+
 ## ===================================================================
 ## Ejercicio 4
 ## ===================================================================
@@ -406,7 +413,8 @@ def crea_asignacion_inicial(psr):
 
 #FIXME eliminar al acabar pruebas
 psr_4 = n_reinas(4)
-print(crea_asignacion_inicial(psr_4))
+#print(crea_asignacion_inicial(psr_4))
+#print(arcos(psr_4))
 ## ###################################################################
 ## (2) Definir una función restricciones_incumplidas que, dado un PSR
 ## y una asignación; devuelva un diccionario que asocie a cada
@@ -440,6 +448,18 @@ print(crea_asignacion_inicial(psr_4))
 ## >>> restricciones_incumplidas(psr_n4, {1: 3, 2: 3, 3: 1, 4: 2})
 ## {1: 2, 2: 1, 3: 2, 4: 1}
 
+def restricciones_incumplidas(psr, asignacion):
+    restricciones = {}
+    for variable in psr.dominios:
+        restricciones[variable] = 0
+    for key, valid in psr.restricciones.items():
+        if not valid(asignacion[key[0]], asignacion[key[1]]):
+            restricciones[key[0]] += 1
+            restricciones[key[1]] += 1        
+    return restricciones
+
+#FIXME elimiar
+print(restricciones_incumplidas(psr_4, {1: 3, 2: 3, 3: 1, 4: 2}))
 ## ###################################################################
 ## (3) Definir una función selecciona_variable que, dado un PSR, una
 ## asignación y una variable; devuelva la variable (con dominio
