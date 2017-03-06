@@ -398,6 +398,15 @@ def dibuja_tablero_n_reinas(asig):
 ## >>> crea_asignacion_inicial(psr_n4)
 ## {1: 2, 2: 1, 3: 4, 4: 1}
 
+def crea_asignacion_inicial(psr):
+    asignacion = {}
+    for key, dominio in psr.dominios.items():
+        asignacion[key] = random.choice(dominio)
+    return asignacion
+
+#FIXME eliminar al acabar pruebas
+psr_4 = n_reinas(4)
+print(crea_asignacion_inicial(psr_4))
 ## ###################################################################
 ## (2) Definir una función restricciones_incumplidas que, dado un PSR
 ## y una asignación; devuelva un diccionario que asocie a cada
