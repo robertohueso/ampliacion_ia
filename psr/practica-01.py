@@ -411,10 +411,6 @@ def crea_asignacion_inicial(psr):
         asignacion[key] = random.choice(dominio)
     return asignacion
 
-#FIXME eliminar al acabar pruebas
-psr_4 = n_reinas(4)
-#print(crea_asignacion_inicial(psr_4))
-#print(arcos(psr_4))
 ## ###################################################################
 ## (2) Definir una función restricciones_incumplidas que, dado un PSR
 ## y una asignación; devuelva un diccionario que asocie a cada
@@ -458,8 +454,6 @@ def restricciones_incumplidas(psr, asignacion):
             restricciones[key[1]] += 1        
     return restricciones
 
-#FIXME elimiar
-#print(restricciones_incumplidas(psr_4, {1: 3, 2: 3, 3: 1, 4: 2}))
 ## ###################################################################
 ## (3) Definir una función selecciona_variable que, dado un PSR, una
 ## asignación y una variable; devuelva la variable (con dominio
@@ -484,13 +478,10 @@ def selecciona_variable(psr, asignacion, variable):
     del(incumplidas[variable])
     lista = [(key, incumplidas[key]) for key in incumplidas]
     random.shuffle(lista)
-    print(lista)
     maximo = max(lista, key = lambda x: x[1])
     maximo = maximo[0]
     return maximo
 
-#FIXME eliminar
-#print(selecciona_variable(psr_4, {1: 3, 2: 1, 3: 1, 4: 2}, 3))
 ## ###################################################################
 ## (4) Definir una función cantidad_conflictos que, dados un PSR, una
 ## asignación, una variable (con dominio múltiple) y un valor del
@@ -602,4 +593,15 @@ def es_solucion(psr, asignacion):
 # >>> reparacion_heuristica(psr_n4)
 # ({1: 3, 2: 1, 3: 4, 4: 2}, 4)
 
+def reparacion_heuristica(psr, iteraciones = 1000):
+    actual = crea_asignacion_inicial(psr)
+    ultima = random.choice(psr.variables)
+    for i in range(iteraciones):
+        if es_solucion(psr, actual):
+            return actual
+        variable = selecciona_variable(psr, actual, ultima)
+        actual[variable] = nuevo_valor(psr, actual, variable)
+    return None
+
+print(reparacion_heuristica(n_reinas(50), 10000))
 ## ###################################################################
