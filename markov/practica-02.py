@@ -320,7 +320,19 @@ def estima_valor(e, pi, mdp, m, n):
 ## ese suceso). El resto de métodos de la clase MDP (A y T) deben
 ## seguir comportándose de la manera descrita.
 
+class MDPG:
+    def __init__(self, estados, descuento):
+        self.estados = estados
+        self.descuento = descuento
 
+    def RG(self, estado, accion, estado_obtenido):
+        pass
+
+    def A(self, estado):
+        pass
+
+    def T(self, estado, accion):
+        pass
 
 ## ===================================================================
 ## Ejercicio 8
