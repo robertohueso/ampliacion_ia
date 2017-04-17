@@ -41,7 +41,7 @@ class MDP(object):
         
     def T(self,estado,accion):
         pass
-    
+   
 ## ===================================================================
 ## Consideramos el siguiente problema:
 
@@ -89,7 +89,30 @@ class MDP(object):
 ## la clase Rica_y_Conocida se definen los métodos de la clase MDP, R,
 ## A y T; según lo descrito.
 
+class Rica_y_Conocida(MDP):
+    def __init__(self, descuento = 0.9):
+        self.descuento = descuento
+        self.estados = ["RyC", "RyD", "PyC", "PyD"]
 
+    def R(self, estado):
+        if estado == "RyC" or estado == "RyD":
+            return 10
+        elif estado == "PyC" or estado == "PyD":
+            return 0
+    
+    def A(self, estado):
+        return ["invertir", "no_invertir"]
+    
+    def T(self, estado, accion):
+        t = {"invertir": {"RyC":[("PyC" ,1)],
+                          "RyD":[("PyC", 0.5), ("PyD", 0.5)],
+                          "PyC":[("PyC", 1)],
+                          "PyD":[("PyD", 0.5), ("PyC", 0.5)]},
+             "no_invertir": {"RyC":[("RyC", 0.5), ("RyD", 0.5)],
+                             "RyD":[("RyD", 0.5), ("PyD", 0.5)],
+                             "PyC":[("PyD", 0.5), ("RyC", 0.5)],
+                             "PyD":[("PyD", 1)]}}
+        return t[accion][estado]
 
 ## ===================================================================
 ## En general, dado un MDP, representaremos una política para el mismo
