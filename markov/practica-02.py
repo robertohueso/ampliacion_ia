@@ -154,7 +154,14 @@ class Rica_y_Conocida(MDP):
 ##  'RC', 'RD', 'PD', 'PC', 'RC', 'RD', 'PC', 'RC', 'RC']
 
 def genera_secuencia_estados(mdp, pi, e, n):
-    
+    estados = [e]
+    for i in range(n):
+        resultados = mdp.T(e, pi[e])
+        nuevos_estados = [r[0] for r in resultados]
+        pesos = [r[1] for r in resultados]
+        nuevo_estado = random.choices(nuevos_estados, pesos)
+        estados.append(nuevo_estado[0])
+    return estados
 
 ## ===================================================================
 ## Dada un MDP y una secuencia de estados, valoramos dicha secuencia
