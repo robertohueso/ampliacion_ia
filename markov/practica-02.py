@@ -218,7 +218,14 @@ def valora_secuencia(seq, mdp):
 ## >>> estima_valor("RC",pi_2,mdp_ryc,60,700)
 ## 50.6501047311598
 
-
+def estima_valor(e, pi, mdp, m, n):
+    valores = []
+    for i in range(n):
+        valor = valora_secuencia(genera_secuencia_estados(mdp, pi, e, m),
+                                 mdp)
+        valores.append(valor)
+        print(valor)
+    return sum(valores) / len(valores)
 
 ## ===================================================================
 ## Ejercicio 5
