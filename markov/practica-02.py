@@ -92,26 +92,26 @@ class MDP(object):
 class Rica_y_Conocida(MDP):
     def __init__(self, descuento = 0.9):
         self.descuento = descuento
-        self.estados = ["RyC", "RyD", "PyC", "PyD"]
+        self.estados = ["RC", "RD", "PC", "PD"]
 
     def R(self, estado):
-        if estado == "RyC" or estado == "RyD":
+        if estado == "RC" or estado == "RD":
             return 10
-        elif estado == "PyC" or estado == "PyD":
+        elif estado == "PC" or estado == "PD":
             return 0
     
     def A(self, estado):
-        return ["invertir", "no_invertir"]
+        return ["Gastar en publicidad", "No publicidad"]
     
     def T(self, estado, accion):
-        t = {"invertir": {"RyC":[("PyC" ,1)],
-                          "RyD":[("PyC", 0.5), ("PyD", 0.5)],
-                          "PyC":[("PyC", 1)],
-                          "PyD":[("PyD", 0.5), ("PyC", 0.5)]},
-             "no_invertir": {"RyC":[("RyC", 0.5), ("RyD", 0.5)],
-                             "RyD":[("RyD", 0.5), ("PyD", 0.5)],
-                             "PyC":[("PyD", 0.5), ("RyC", 0.5)],
-                             "PyD":[("PyD", 1)]}}
+        t = {"Gastar en publicidad": {"RC":[("PC" ,1)],
+                          "RD":[("PC", 0.5), ("PD", 0.5)],
+                          "PC":[("PC", 1)],
+                          "PD":[("PD", 0.5), ("PC", 0.5)]},
+             "No publicidad": {"RC":[("RC", 0.5), ("RD", 0.5)],
+                             "RD":[("RD", 0.5), ("PD", 0.5)],
+                             "PC":[("PD", 0.5), ("RC", 0.5)],
+                             "PD":[("PD", 1)]}}
         return t[accion][estado]
 
 ## ===================================================================
@@ -153,8 +153,9 @@ class Rica_y_Conocida(MDP):
 ## ['PC', 'PD', 'PC', 'PD', 'PD', 'PD', 'PC', 'PD', 'PD', 'PD', 'PC',
 ##  'RC', 'RD', 'PD', 'PC', 'RC', 'RD', 'PC', 'RC', 'RC']
 
-
+def genera_secuencia_estados(mdp, pi, e, n):
     
+
 ## ===================================================================
 ## Dada un MDP y una secuencia de estados, valoramos dicha secuencia
 ## como la suma de las recompensas de los estados de la secuencia (cada
