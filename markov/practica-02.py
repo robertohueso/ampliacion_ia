@@ -186,8 +186,12 @@ def genera_secuencia_estados(mdp, pi, e, n):
 ##                       'PC', 'RC', 'RD', 'PC', 'RC', 'RC'],mdp_ryc) 
 ## 12.72613090615132
 
+def valora_secuencia(seq, mdp):
+    valor = 0
+    for paso, estado in enumerate(seq):
+        valor += (mdp.descuento ** paso) * mdp.R(estado)
+    return valor
 
-    
 ## ===================================================================
 ## Dada una política pi, la valoración de un estado, e, respecto de
 ## esa política, V^{pi}(e), se define como la media esperada de las
