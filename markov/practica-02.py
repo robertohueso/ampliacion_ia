@@ -161,6 +161,7 @@ def genera_secuencia_estados(mdp, pi, e, n):
         pesos = [r[1] for r in resultados]
         nuevo_estado = random.choices(nuevos_estados, pesos)
         estados.append(nuevo_estado[0])
+        e = nuevo_estado[0]
     return estados
 
 ## ===================================================================
@@ -354,10 +355,46 @@ class MDPG:
 
 ## >>> pi_inf = {2:"inferior",3:"inferior",4:"inferior",0:"nada"}
 ## >>> genera_secuencia_estados(mdp_apuesta, pi_inf, 3, 20)
-## [3, 3, 3, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] 
+## [3, 3, 3, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
+class Apuesta(MDPG):
+    def __init__(self, descuento = 0.9):
+        self.descuento = descuento
+        #Estado 0 = Ha perdido el juego.
+        self.estados = [2, 3, 4, 0]
 
+    def RG(self, estado, accion, estado_obtenido):
+        if self.en_juego == False:
+            return 0
+        elif accion == "superior" and estado_obtenido > estado:
+            return estado_obtenido
+        elif accion == "inferior" and estado_obtenido < estado:
+            return estado_obtenido
+        elif estado == estado_obtenido:
+            return 0
+        else:
+            return 0
+
+    def A(self, estado):
+        if estado == 0:
+            return ["nada"]
+        else:
+            return ["superior", "inferior"]
+
+    def T(self, estado, accion):
+        t = {"superior": {2: [(2, 0.5), (3, 0.25), (4, 0.25)],
+                          3: [(0, 0.5), (3, 0.25), (4, 0.25)],
+                          4: [(0, 0.5), (0, 0.25), (4, 0.25)]},
+             "inferior": {2: [(2, 0.5), (0, 0.25), (0, 0.25)],
+                          3: [(2, 0.5), (3, 0.25), (0, 0.25)],
+                          4: [(2, 0.5), (3, 0.25), (4, 0.25)]},
+             "nada": {2: [(0, 1)],
+                      3: [(0, 1)],
+                      4: [(0, 1)],
+                      0: [(0, 1)]}}
+        return t[accion][estado]
     
+
 ## ===================================================================
 ## El sistema de ecuaciones utilizado para aproximar de manera
 ## iterativa la valoración de un estado, para esta variante de
