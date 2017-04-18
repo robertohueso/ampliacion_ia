@@ -384,9 +384,7 @@ class Apuesta(MDPG):
         self.estados = [2, 3, 4, 0]
 
     def RG(self, estado, accion, estado_obtenido):
-        if self.en_juego == False:
-            return 0
-        elif accion == "superior" and estado_obtenido > estado:
+        if accion == "superior" and estado_obtenido > estado:
             return estado_obtenido
         elif accion == "inferior" and estado_obtenido < estado:
             return estado_obtenido
@@ -436,8 +434,34 @@ class Apuesta(MDPG):
 ## Aplicar la función para calcular la valoración asociada a las dos
 ## políticas que se dan en el ejemplo del ejercicio anterior.
 
+def R(s, mdp, pi):
+    val_ajustada = []
+    t = mdp.T(s, pi[s])
+    for s1, prob in t:
+        val_ajustada.append(prob * mdp.RG(s, pi[s], s1))
+    return sum(val_ajustada)
+
 def valoracionG_respecto_politica(pi, mdp, n):
-    pass
+    valoracion = {estado: 0 for estado in mdp.estados}
+    for i in range(n):
+        v_p = valoracion
+        for estado in mdp.estados:
+            t = mdp.T(estado, pi[estado])
+            val_ajustada = list(map(lambda x: x[1] * v_p[x[0]], t))
+            valoracion[estado] = \
+                R(estado, mdp, pi) + mdp.descuento * sum(val_ajustada)
+    return valoracion
+
+mdp_apuesta = Apuesta()
+pi_sup = {2:"superior",3:"superior",4:"superior",0:"nada"}
+pi_inf = {2:"inferior",3:"inferior",4:"inferior",0:"nada"}
+
+val_sup = valoracionG_respecto_politica(pi_sup, mdp_apuesta, 500)
+val_inf = valoracionG_respecto_politica(pi_inf, mdp_apuesta, 500)
+
+print("______________________________")
+print("val_sup = " + str(val_sup))
+print("val_inf = " + str(val_inf))
 
 ## ===================================================================
 ## Por otro lado, en el tema 2 se ha visto que la valoración de un
