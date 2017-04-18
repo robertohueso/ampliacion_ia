@@ -347,12 +347,18 @@ class MDPG:
         self.descuento = descuento
 
     def RG(self, estado, accion, estado_obtenido):
+        """ Recompensa generica """
+        
         pass
 
     def A(self, estado):
+        """ Aciones disponisbles """
+        
         pass
 
     def T(self, estado, accion):
+        """ Modelo de transicion """
+        
         pass
 
 ## ===================================================================
@@ -378,10 +384,14 @@ class MDPG:
 ## [3, 3, 3, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 class Apuesta(MDPG):
-    def __init__(self, descuento = 0.9):
+    def __init__(self, descuento = 0.9):        
         self.descuento = descuento
         #Estado 0 = Ha perdido el juego.
         self.estados = [2, 3, 4, 0]
+        
+        # Dado que en el codigo de prueba no dice nada de descuento
+        # al crear un objeto de la clase Apuesta, he asumido que
+        # sera 0.9 por defecto.
 
     def RG(self, estado, accion, estado_obtenido):
         if accion == "superior" and estado_obtenido > estado:
@@ -402,10 +412,12 @@ class Apuesta(MDPG):
     def T(self, estado, accion):
         t = {"superior": {2: [(2, 0.5), (3, 0.25), (4, 0.25)],
                           3: [(0, 0.5), (3, 0.25), (4, 0.25)],
-                          4: [(0, 0.5), (0, 0.25), (4, 0.25)]},
-             "inferior": {2: [(2, 0.5), (0, 0.25), (0, 0.25)],
+                          4: [(0, 0.75), (4, 0.25)],
+                          0: [(0, 1)]},
+             "inferior": {2: [(2, 0.5), (0, 0.5)],
                           3: [(2, 0.5), (3, 0.25), (0, 0.25)],
-                          4: [(2, 0.5), (3, 0.25), (4, 0.25)]},
+                          4: [(2, 0.5), (3, 0.25), (4, 0.25)],
+                          0: [(0, 1)]},
              "nada": {2: [(0, 1)],
                       3: [(0, 1)],
                       4: [(0, 1)],
@@ -435,11 +447,10 @@ class Apuesta(MDPG):
 ## políticas que se dan en el ejemplo del ejercicio anterior.
 
 def R(s, mdp, pi):
-    val_ajustada = []
-    t = mdp.T(s, pi[s])
-    for s1, prob in t:
-        val_ajustada.append(prob * mdp.RG(s, pi[s], s1))
-    return sum(val_ajustada)
+    val_ajustada = 0
+    for s1, prob in mdp.T(s, pi[s]):
+        val_ajustada += prob * mdp.RG(s, pi[s], s1)
+    return val_ajustada
 
 def valoracionG_respecto_politica(pi, mdp, n):
     valoracion = {estado: 0 for estado in mdp.estados}
@@ -459,7 +470,7 @@ pi_inf = {2:"inferior",3:"inferior",4:"inferior",0:"nada"}
 val_sup = valoracionG_respecto_politica(pi_sup, mdp_apuesta, 500)
 val_inf = valoracionG_respecto_politica(pi_inf, mdp_apuesta, 500)
 
-print("______________________________")
+print("___EJERCICIO 9___")
 print("val_sup = " + str(val_sup))
 print("val_inf = " + str(val_inf))
 
@@ -515,7 +526,7 @@ def iteracion_de_politicasG(mdp, k):
 
 mejor_pi, v_mejor_pi = iteracion_de_politicasG(mdp_apuesta, 500)
 
-print("_________________________________________")
+print("___EJERCICIO 10___")
 print("Mejor politica: " + str(mejor_pi))
 print("Valoracion: " + str(v_mejor_pi))
 
@@ -541,7 +552,7 @@ def obtener_media_apuesta(mdp, pi, n):
             estado = nuevo_estado
     return puntos / n
 
-print("_________________________________________")
+print("___EJERCICIO 11___")
 print("Media sup: " + str(obtener_media_apuesta(mdp_apuesta, pi_sup, 100)))
 print("Media inf: " + str(obtener_media_apuesta(mdp_apuesta, pi_inf, 100)))
 print("Media mejor: " + str(obtener_media_apuesta(mdp_apuesta, mejor_pi, 100)))
