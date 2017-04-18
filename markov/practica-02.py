@@ -285,7 +285,7 @@ pi_2 = {"RC":"No publicidad","RD":"Gastar en publicidad",
 
 val_ahorra = valoracion_respecto_politica(pi_ahorra, mdp_ryc, 500)
 val_2 = valoracion_respecto_politica(pi_2, mdp_ryc, 500)
-print("pi_ahorra: " + str(val_ahorra), "\npi_2: " + str(val_2)) 
+#print("pi_ahorra: " + str(val_ahorra), "\npi_2: " + str(val_2)) 
 
 ## ###################################################################
 ## Los siguientes apartados se proponen como ejercicio de programación
@@ -527,6 +527,23 @@ print("Valoracion: " + str(v_mejor_pi))
 ## 100 partidas para cada una de las politicas consideradas; las dos del
 ## ejercicio 9 y la obtenida en el ejercicio 10.
 
+def obtener_media_apuesta(mdp, pi, n):
+    puntos = 0
+    for partida in range(n):
+        estado = 3
+        while estado != 0:
+            accion = pi[estado]
+            t = mdp.T(estado, accion)
+            t = {estado: prob for estado, prob in t}
+            nuevo_estado = random.choices(list(t.keys()), list(t.values()))[0]
+            resultado = mdp.RG(estado, accion, nuevo_estado)
+            puntos += resultado
+            estado = nuevo_estado
+    return puntos / n
 
+print("_________________________________________")
+print("Media sup: " + str(obtener_media_apuesta(mdp_apuesta, pi_sup, 100)))
+print("Media inf: " + str(obtener_media_apuesta(mdp_apuesta, pi_inf, 100)))
+print("Media mejor: " + str(obtener_media_apuesta(mdp_apuesta, mejor_pi, 100)))
 
 ## ===================================================================
