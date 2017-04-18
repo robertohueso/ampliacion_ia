@@ -490,9 +490,34 @@ print("val_inf = " + str(val_inf))
 
 ## Calcular la mejor política y su valoración con el MDPG de
 ## Apuesta. Comparar los resultados respecto de las valoraciones
-## obtenidas con las políticas que se vieron en el ejercicios 9.   
-       
+## obtenidas con las políticas que se vieron en el ejercicios 9.
 
+def iteracion_de_politicasG(mdp, k):
+    pi = {s: random.choice(mdp.A(s)) for s in mdp.estados}
+    actualizada = True
+    while actualizada:
+        v_pi = valoracionG_respecto_politica(pi, mdp, k)
+        actualizada = False
+        for s in mdp.estados:
+            val_accion = {accion: 0 for accion in mdp.A(s)}
+            for accion in mdp.A(s):
+                t_a = mdp.T(s, accion)
+                total = []
+                for s_p, p in t_a:
+                    total.append(p * v_pi[s_p])
+                total = sum(total)
+                val_accion[accion] = total
+            max_a = max(val_accion, key = val_accion.get)
+            if val_accion[max_a] > val_accion[pi[s]]:
+                pi[s] = max_a
+                actualizada = True
+    return pi, v_pi
+
+mejor_pi, v_mejor_pi = iteracion_de_politicasG(mdp_apuesta, 500)
+
+print("_________________________________________")
+print("Mejor politica: " + str(mejor_pi))
+print("Valoracion: " + str(v_mejor_pi))
 
 ## ===================================================================
 ## Ejercicio 11
