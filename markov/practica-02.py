@@ -513,10 +513,9 @@ def iteracion_de_politicasG(mdp, k):
             val_accion = {accion: 0 for accion in mdp.A(s)}
             for accion in mdp.A(s):
                 t_a = mdp.T(s, accion)
-                total = []
+                total = 0
                 for s_p, p in t_a:
-                    total.append(p * v_pi[s_p])
-                total = sum(total)
+                    total += p * v_pi[s_p]
                 val_accion[accion] = total
             max_a = max(val_accion, key = val_accion.get)
             if val_accion[max_a] > val_accion[pi[s]]:
@@ -525,6 +524,9 @@ def iteracion_de_politicasG(mdp, k):
     return pi, v_pi
 
 mejor_pi, v_mejor_pi = iteracion_de_politicasG(mdp_apuesta, 500)
+
+# Asumo con v_mejor_pi que se desea la valoracion de cada estado
+# con respecto a la mejor politica
 
 print("___EJERCICIO 10___")
 print("Mejor politica: " + str(mejor_pi))
@@ -547,8 +549,7 @@ def obtener_media_apuesta(mdp, pi, n):
             t = mdp.T(estado, accion)
             t = {estado: prob for estado, prob in t}
             nuevo_estado = random.choices(list(t.keys()), list(t.values()))[0]
-            resultado = mdp.RG(estado, accion, nuevo_estado)
-            puntos += resultado
+            puntos += mdp.RG(estado, accion, nuevo_estado)
             estado = nuevo_estado
     return puntos / n
 
