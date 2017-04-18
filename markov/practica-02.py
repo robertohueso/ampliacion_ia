@@ -265,7 +265,27 @@ def estima_valor(e, pi, mdp, m, n):
 ## políticas que se dan en el ejercicio anterior, y comparara los
 ## valores obtenidos con los obtenidos mediante muestreo.
 
+def valoracion_respecto_politica(pi, mdp, n):
+    valoracion = {estado: 0 for estado in mdp.estados}
+    for i in range(n):
+        v_p = valoracion
+        for estado in mdp.estados:
+            t = mdp.T(estado, pi[estado])
+            val_ajustada = list(map(lambda x: x[1] * v_p[x[0]], t))
+            valoracion[estado] = mdp.R(estado) + mdp.descuento * sum(val_ajustada)
+    return valoracion
 
+mdp_ryc = Rica_y_Conocida()
+
+pi_ahorra ={"RC":"No publicidad","RD":"No publicidad",
+                 "PC":"No publicidad","PD":"No publicidad"}
+
+pi_2 = {"RC":"No publicidad","RD":"Gastar en publicidad",
+             "PC":"No publicidad","PD":"Gastar en publicidad"}
+
+val_ahorra = valoracion_respecto_politica(pi_ahorra, mdp_ryc, 500)
+val_2 = valoracion_respecto_politica(pi_2, mdp_ryc, 500)
+print("pi_ahorra: " + str(val_ahorra), "\npi_2: " + str(val_2)) 
 
 ## ###################################################################
 ## Los siguientes apartados se proponen como ejercicio de programación
@@ -416,7 +436,8 @@ class Apuesta(MDPG):
 ## Aplicar la función para calcular la valoración asociada a las dos
 ## políticas que se dan en el ejemplo del ejercicio anterior.
 
-
+def valoracionG_respecto_politica(pi, mdp, n):
+    pass
 
 ## ===================================================================
 ## Por otro lado, en el tema 2 se ha visto que la valoración de un
