@@ -125,6 +125,56 @@ class Juego():
 ## >>> juego_nim.aplica(17, 3)
 ## 14
 
+class Nim(Juego):
+    def __init__(self, e_inicial, e_final, eval_max = math.inf,
+                 eval_min = -math.inf):
+        super().__init__(e_inicial, e_final, eval_max, eval_min)
+
+    def movimientos(estado):
+        if estado >= 3:
+            return [-1, -2, -3]
+        elif estado == 2:
+            return [-1, -2, -3]
+        else:
+            return [-1]
+
+    def aplica(movimiento, estado):
+        return estado + movimiento
+
+    def es_estado_final(estado):
+        if estado == 0:
+            return True
+        else:
+            return False
+
+    def es_estado_ganador(estado, turno, jugador):
+        if estado == self.e_final and turno == jugador:
+            return True
+        else:
+            return False
+
+    def f_evaluacion(estado, turno):
+        if estado % 4 == 1:
+            if turno == 'MAX':
+                return self.eval_min
+            else:
+                return self.eval_max
+        else:
+            if turno == 'MAX':
+                return self.eval_max
+            else:
+                return self.eval_min
+
+    def str_estado(estado):
+        return str(estado)
+
+    def str_movimiento(movimiento):
+        return str(movimiento)
+
+
+def nim(n):
+    return Nim(n, 0, 1, -1)
+
 ## ===================================================================
 ## Algoritmo de decision minimax
 ## ===================================================================
