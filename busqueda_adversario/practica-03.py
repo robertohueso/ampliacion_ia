@@ -563,7 +563,7 @@ def minimax(juego, estado, profundidad):
 ## >>>
 
 class Dodgem():
-    def __init__(self, orden, turno = 'blancas'):
+    def __init__(self, orden, eval_max, eval_min):
         self.turno = turno
         self.orden = orden
         self.negras = {}
@@ -571,6 +571,9 @@ class Dodgem():
         for i in range(orden - 1):
             self.negras['N'+str(i)] = [i, 0]
             self.blancas['B'+str(i)] = [orden - 1, i + 1]
+        self.estado_inicial = self.negras, self.blancas
+        self.eval_min = eval_min
+        self.eval_max = eval_max
    
     def movimientos(self, estado):
         movimientos = []
@@ -669,19 +672,52 @@ class Dodgem():
     def estado(self):
         return self.negras, self.blancas
 
-juego = Dodgem(3)
-e = juego.estado()
-juego.str_estado(e)
-movimientos = juego.movimientos(e)
-print(movimientos)
-print(juego.str_movimiento(movimientos[0]))
-e = juego.aplica(movimientos[0], e)
-juego.str_estado(e)
-val = juego.f_evaluacion(e, 'blancas')
-print(val)
 ## ------------------------------------------------------------------
 ## Ejercicio 2
 ## ------------------------------------------------------------------
+
+def valor_alfa_beta(juego, estado, turno, cota, alfa, beta):
+    mov = juego.movimientos(estado)
+    if juego.es_estado_final(estado) or cota == 0 or len(mov) == 0:
+        return juego.f_evaluacion(estado, turno)
+    else:
+        if turno == 'MAX':
+            return maximizador_alfa_beta(juego, estado, mov, cota - 1, alfa, beta)
+        else:
+            return minimizador_alfa_beta(juego, estado, mov, cota - 1, alfa, beta)
+
+def maximizador_alfa_beta(juego, estado, movimientos, cota, alfa, beta):
+    for mov in movimientos:
+        sucesor = juego.aplica(mov, estado)
+        valor_actual = valor_alfa_beta(sucesor, 'MIN', cota, alfa, beta)
+        if valor_actual > alfa:
+            alfa = valor_actual
+        if alfa >= beta:
+            return alfa
+    return alfa
+
+def minimizador_alfa_beta(juego, estado, movimientos, cota, alfa, beta):
+    for mov in movimientos:
+        sucesor = juego.aplica(mov, estado)
+        valor_actual = valor_alfa_beta(sucesor, 'MAX', cota, alfa, beta)
+        if valor_actual < beta:
+            beta = valor_actual
+        if alfa >= beta:
+            return beta
+    return beta
+
+def decision_alfa_beta(juego, estado, cota):
+    alfa = juego.min_val
+    decision = 0
+    for mov in juego.movimientos(estado):
+        sucesor = juego.aplica(mov, estado)
+        valor_actual = valor_alfa_beta(juego, estado, 'MIN', cota - 1, alfa, juego.max_val)
+        if valor_actual > alfa:
+            alfa = valor_actual
+            decision = mov
+        if alfa >= juego.max_val:
+            return decision
+        return decision
 
 ##   Implementar el algoritmo de toma de decisiones minimax con poda
 ##   alfabeta.
