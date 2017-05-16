@@ -63,30 +63,30 @@ import math
 class Juego():
     def __init__(self, e_inicial, e_final, eval_max = math.inf,
                  eval_min = -math.inf):
-        self.e_inicial = e_inicial
-        self.e_final = e_final
+        self.estado_inicial = e_inicial
+        self.estado_final = e_final
         self.eval_max = eval_max
         self.eval_min = eval_min
 
-    def movimientos(estado):
+    def movimientos(self, estado):
         pass
 
-    def aplica(movimiento, estado):
+    def aplica(self, movimiento, estado):
         pass
 
-    def es_estado_final(estado):
+    def es_estado_final(self, estado):
         pass
 
-    def es_estado_ganador(estado, turno, jugador):
+    def es_estado_ganador(self, estado, turno, jugador):
         pass
 
-    def f_evaluacion(estado, turno):
+    def f_evaluacion(self, estado, turno):
         pass
 
-    def str_estado(estado):
+    def str_estado(self, estado):
         pass
 
-    def str_movimiento(movimiento):
+    def str_movimiento(self, movimiento):
         pass
 
 
@@ -130,7 +130,7 @@ class Nim(Juego):
                  eval_min = -math.inf):
         super().__init__(e_inicial, e_final, eval_max, eval_min)
 
-    def movimientos(estado):
+    def movimientos(self, estado):
         if estado >= 3:
             return [-1, -2, -3]
         elif estado == 2:
@@ -138,22 +138,22 @@ class Nim(Juego):
         else:
             return [-1]
 
-    def aplica(movimiento, estado):
+    def aplica(self, movimiento, estado):
         return estado + movimiento
 
-    def es_estado_final(estado):
+    def es_estado_final(self, estado):
         if estado == 0:
             return True
         else:
             return False
 
-    def es_estado_ganador(estado, turno, jugador):
-        if estado == self.e_final and turno == jugador:
+    def es_estado_ganador(self, estado, turno, jugador):
+        if estado == self.estado_final and turno == jugador:
             return True
         else:
             return False
 
-    def f_evaluacion(estado, turno):
+    def f_evaluacion(self, estado, turno):
         if estado % 4 == 1:
             if turno == 'MAX':
                 return self.eval_min
@@ -165,10 +165,10 @@ class Nim(Juego):
             else:
                 return self.eval_min
 
-    def str_estado(estado):
+    def str_estado(self, estado):
         return str(estado)
 
-    def str_movimiento(movimiento):
+    def str_movimiento(self, movimiento):
         return str(movimiento)
 
 
@@ -214,6 +214,47 @@ def nim(n):
 ##   devuelve el mínimo de los valores minimax de los estados
 ##   obtenidos aplicando cada uno de los movimientos al estado
 ##   proporcionado.
+
+def maximizador(juego, estado, movimientos, profundidad):
+    max_val = juego.eval_min
+    for mov in movimientos:
+        sucesor = juego.aplica(mov, estado)
+        valor_actual = valor_minimax(juego, sucesor, 'MIN', profundidad)
+        if valor_actual > max_val:
+            max_val = valor_actual
+    return max_val
+
+def minimizador(juego, estado, movimientos, profundidad):
+    min_val = juego.eval_max
+    for mov in movimientos:
+        sucesor = juego.aplica(mov, estado)
+        valor_actual = valor_minimax(juego, sucesor, 'MAX', profundidad)
+        if valor_actual < min_val:
+            min_val = valor_actual
+    return min_val
+
+def valor_minimax(juego, estado, turno, profundidad):
+    movimientos = juego.movimientos(estado)
+    if juego.es_estado_final(estado) or profundidad == 0 or \
+       len(movimientos) == 0: 
+        return juego.f_evaluacion(estado, turno)
+    else:
+        if turno == 'MAX':
+            return maximizador(juego, estado, movimientos, profundidad - 1)
+        else:
+            return minimizador(juego, estado, movimientos, profundidad - 1)
+
+def minimax(juego, estado, profundidad):
+    max_val = juego.eval_min
+    decision = 0
+    for mov in juego.movimientos(estado):
+        sucesor = juego.aplica(mov, estado)
+        valor_actual = valor_minimax(juego, sucesor, 'MIN', profundidad - 1)
+        if valor_actual > max_val:
+            max_val = valor_actual
+            decision = mov
+    return decision, juego.aplica(decision, estado)
+
 
 ## ##################################################################
 
