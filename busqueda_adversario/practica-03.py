@@ -621,18 +621,30 @@ class Dodgem():
         return self.negras, self.blancas
             
     def es_estado_final(self, estado):
-        if len(self.movimientos(estado)) == 0 or \
-           (len(estado[0]) == 0 and len(estado[1]) == 0):
+        if len(self.movimientos(estado)) == 0 or len(estado[0]) == 0 or \
+           len(estado[1]) == 0:
             return True
         else:
             return False
 
     def es_estado_ganador(self, estado, turno, jugador):
-        pass
+        if estado == self.es_estado_final(estado) and turno == jugador:
+            return True
+        else:
+            return False
 
     def f_evaluacion(self, estado, turno):
-        pass
-
+        total = 0
+        if turno == 'negras':
+            for pos in estado[0].values():
+                inv_pos = [self.orden - 1 - pos[0], pos[1]]
+                total += 5*inv_pos[0] + 15*inv_pos[1]
+        else:
+            for pos in estado[1].values():
+                inv_pos = [self.orden - 1 - pos[0], pos[1]]
+                total += 15*inv_pos[0] + 5*inv_pos[1]
+        return total
+    
     def str_estado(self, estado):
         print(' | ' + ' | '.join((str(i) for i in range(self.orden))))
         print('-----' * self.orden)
@@ -662,6 +674,8 @@ print(movimientos)
 print(juego.str_movimiento(movimientos[0]))
 e = juego.aplica(movimientos[0], e)
 juego.str_estado(e)
+val = juego.f_evaluacion(e, 'negras')
+print(val)
 ## ------------------------------------------------------------------
 ## Ejercicio 2
 ## ------------------------------------------------------------------
