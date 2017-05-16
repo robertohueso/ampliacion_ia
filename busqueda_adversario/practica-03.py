@@ -58,6 +58,37 @@
 ## final, en caso de que éste sea único y los valores máximo y mínimo
 ## de la función de evaluación (por defecto, infinito y -infinito
 ## respectivamente).
+import math
+
+class Juego():
+    def __init__(self, e_inicial, e_final, eval_max = math.inf,
+                 eval_min = -math.inf):
+        self.e_inicial = e_inicial
+        self.e_final = e_final
+        self.eval_max = eval_max
+        self.eval_min = eval_min
+
+    def movimientos(estado):
+        pass
+
+    def aplica(movimiento, estado):
+        pass
+
+    def es_estado_final(estado):
+        pass
+
+    def es_estado_ganador(estado, turno, jugador):
+        pass
+
+    def f_evaluacion(estado, turno):
+        pass
+
+    def str_estado(estado):
+        pass
+
+    def str_movimiento(movimiento):
+        pass
+
 
 ## ==================================================================
 ## NIM
