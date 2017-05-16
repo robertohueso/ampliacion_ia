@@ -567,8 +567,10 @@ def minimax(juego, estado, profundidad):
 ## El humano ha ganado
 ## >>>
 
+import copy
+
 class Dodgem():
-    def __init__(self, orden, eval_max, eval_min):
+    def __init__(self, orden, turno):
         self.turno = turno
         self.orden = orden
         self.negras = {}
@@ -576,32 +578,32 @@ class Dodgem():
         for i in range(orden - 1):
             self.negras['N'+str(i)] = [i, 0]
             self.blancas['B'+str(i)] = [orden - 1, i + 1]
-        self.estado_inicial = self.negras, self.blancas
-        self.eval_min = eval_min
-        self.eval_max = eval_max
+        self.estado_inicial = (self.negras, self.blancas)
+        self.min_val = -300
+        self.max_val = 300
    
     def movimientos(self, estado):
         movimientos = []
         disponibles_N = {}
         disponibles_B = {}
-        for key, ficha in self.negras.items():
+        for key, ficha in estado[0].items():
             disponibles_N[(key, 'derecha')] = [ficha[0], ficha[1] + 1]
             disponibles_N[(key, 'arriba')] = [ficha[0] - 1, ficha[1]]
             disponibles_N[(key, 'abajo')] = [ficha[0] + 1, ficha[1]]
-        for key, ficha in self.blancas.items():
+        for key, ficha in estado[1].items():
             disponibles_B[(key, 'derecha')] = [ficha[0], ficha[1] + 1]
             disponibles_B[(key, 'arriba')] = [ficha[0] - 1, ficha[1]]
             disponibles_B[(key, 'izquierda')] = [ficha[0], ficha[1] - 1]
 
         #Evita ficha sobre ficha y salida por lugar equivocado
         for ficha, movimiento in list(disponibles_N.items()):
-            if movimiento in self.negras.values() or movimiento in self.blancas.values():
+            if movimiento in estado[0].values() or movimiento in estado[1].values():
                 del(disponibles_N[ficha])
             if movimiento[0] == self.orden or movimiento[0] < 0 or movimiento[1] < 0:
                 del(disponibles_N[ficha])
             
         for ficha, movimiento in list(disponibles_B.items()):
-            if movimiento in self.negras.values() or movimiento in self.blancas.values():
+            if movimiento in estado[0].values() or movimiento in estado[1].values():
                 del(disponibles_B[ficha])
             if movimiento[0] == self.orden or movimiento[1] < 0 or \
                movimiento[1] == self.orden:
@@ -610,26 +612,28 @@ class Dodgem():
         if self.turno == 'negras':
             for ficha, movimiento in disponibles_N.items():
                 movimientos.append((ficha, movimiento))
-        else:
+        elif self.turno == 'blancas':
             for ficha, movimiento in disponibles_B.items():
                 movimientos.append((ficha, movimiento))
 
         return movimientos
     
     def aplica(self, movimiento, estado):
+        nuevo_estado = copy.deepcopy(estado)
         nueva_pos = movimiento[1]
         if nueva_pos[0] == self.orden or nueva_pos[1] == self.orden or \
            nueva_pos[0] < 0 or nueva_pos[1] < 0:
             if movimiento[0][0] in self.negras.keys():
-                del(self.negras[movimiento[0][0]])
+                del(nuevo_estado[0][movimiento[0][0]])
             else:
-                del(self.blancas[movimiento[0][0]])
+                del(nuevo_estado[1][movimiento[0][0]])
         else:
             if movimiento[0][0] in self.negras.keys():
-                self.negras[movimiento[0][0]] = nueva_pos
+                nuevo_estado[0][movimiento[0][0]] = nueva_pos
             else:
-                self.blancas[movimiento[0][0]] = nueva_pos
-        return self.negras, self.blancas
+                nuevo_estado[1][movimiento[0][0]] = nueva_pos
+        
+        return (nuevo_estado[0], nuevo_estado[1])
             
     def es_estado_final(self, estado):
         if len(self.movimientos(estado)) == 0 or len(estado[0]) == 0 or \
@@ -662,9 +666,9 @@ class Dodgem():
         for i in range(self.orden):
             linea = str(i) + '|'
             for j in range(self.orden):
-                if [i, j] in self.negras.values():
+                if [i, j] in estado[0].values():
                     linea += ' N |'
-                elif [i,j] in self.blancas.values():
+                elif [i,j] in estado[1].values():
                     linea += ' B |'
                 else:
                     linea += '   |'
@@ -674,16 +678,14 @@ class Dodgem():
     def str_movimiento(self, movimiento):
         return movimiento[0]
 
-    def estado(self):
-        return self.negras, self.blancas
-
 ## ------------------------------------------------------------------
 ## Ejercicio 2
 ## ------------------------------------------------------------------
 
 #NOMBRES DE JUGADORES
-MIN = 'MIN'
-MAX = 'MAX'
+MIN = 'blancas'
+MAX = 'negras'
+#------------------------------------------------------------------
 
 def valor_alfa_beta(juego, estado, turno, cota, alfa, beta):
     mov = juego.movimientos(estado)
@@ -698,7 +700,7 @@ def valor_alfa_beta(juego, estado, turno, cota, alfa, beta):
 def maximizador_alfa_beta(juego, estado, movimientos, cota, alfa, beta):
     for mov in movimientos:
         sucesor = juego.aplica(mov, estado)
-        valor_actual = valor_alfa_beta(sucesor, MIN, cota, alfa, beta)
+        valor_actual = valor_alfa_beta(juego, sucesor, MIN, cota, alfa, beta)
         if valor_actual > alfa:
             alfa = valor_actual
         if alfa >= beta:
@@ -708,7 +710,7 @@ def maximizador_alfa_beta(juego, estado, movimientos, cota, alfa, beta):
 def minimizador_alfa_beta(juego, estado, movimientos, cota, alfa, beta):
     for mov in movimientos:
         sucesor = juego.aplica(mov, estado)
-        valor_actual = valor_alfa_beta(sucesor, MAX, cota, alfa, beta)
+        valor_actual = valor_alfa_beta(juego, sucesor, MAX, cota, alfa, beta)
         if valor_actual < beta:
             beta = valor_actual
         if alfa >= beta:
@@ -717,8 +719,9 @@ def minimizador_alfa_beta(juego, estado, movimientos, cota, alfa, beta):
 
 def decision_alfa_beta(juego, estado, cota):
     alfa = juego.min_val
-    decision = 0
-    for mov in juego.movimientos(estado):
+    movimientos = juego.movimientos(estado)
+    decision = movimientos[0]
+    for mov in movimientos:
         sucesor = juego.aplica(mov, estado)
         valor_actual = valor_alfa_beta(juego, estado, MIN, cota - 1, alfa, juego.max_val)
         if valor_actual > alfa:
@@ -726,7 +729,7 @@ def decision_alfa_beta(juego, estado, cota):
             decision = mov
         if alfa >= juego.max_val:
             return decision
-        return decision
+        return decision, juego.aplica(decision, estado)
 
 ##   Implementar el algoritmo de toma de decisiones minimax con poda
 ##   alfabeta.
@@ -737,3 +740,89 @@ def decision_alfa_beta(juego, estado, cota):
 ##   jugar 'MAX'. El movimiento con mejor valor minimax de entre todas
 ##   las opciones disponibles.
 
+#CODIGO PRUEBA (He tenido que realizar algunos cambios para que funcione
+#               con decision_alfa_beta)
+
+MIN = 'blancas'
+MAX = 'negras'
+
+def cambia_turno(juego):
+    if juego.turno == MAX:
+        juego.turno = MIN
+    else:
+        juego.turno = MAX
+
+def crea_nodo_j_inicial (juego, jugador):
+    return {'estado' : juego.estado_inicial, 'jugador' : jugador}
+
+
+def escribe_nodo_j (juego, nodo_j):
+  print('Estado  : {0}\nJugador : {1}'.format(juego.str_estado(nodo_j['estado']),
+                                              nodo_j['jugador']))
+
+
+def control(juego, jugador_inicial, procedimiento = [minimax, 5]):
+  nodo_j_inicial = crea_nodo_j_inicial(juego, jugador_inicial)
+  if juego.es_estado_final(juego.estado_inicial):
+    analiza_final(juego, nodo_j_inicial)
+  else:
+    if jugador_inicial == MAX:
+      jugada_maquina(juego, procedimiento, nodo_j_inicial)
+    else:
+      jugada_humana(juego, procedimiento, nodo_j_inicial)
+
+
+def analiza_final(juego, nodo_j):
+  escribe_nodo_j(juego, nodo_j)
+  if juego.es_estado_ganador(nodo_j['estado'], nodo_j['jugador'], MAX):
+     print('La maquina ha ganado')
+  elif juego.es_estado_ganador(nodo_j['estado'], nodo_j['jugador'], MIN):
+    print('El humano ha ganado')
+  else:
+    print('Empate')
+
+
+def escribe_movimientos(juego, movimientos):
+    print('Los movimientos permitidos son:')
+    numero = 0
+    for m in movimientos:
+        print('      {0} ({1})'.format(juego.str_movimiento(m), numero))
+        numero += 1
+
+
+def jugada_humana(juego, procedimiento, nodo_j):
+  escribe_nodo_j(juego, nodo_j)
+  movimientos_posibles = juego.movimientos(nodo_j['estado'])
+  escribe_movimientos(juego, movimientos_posibles)
+  m = int(input('Tu turno: '))
+  if (-1 < m <  len(movimientos_posibles)):
+    nuevo_estado = juego.aplica(movimientos_posibles[m], nodo_j['estado'])
+    siguiente = {'estado' : nuevo_estado, 'jugador' : MAX}
+    if juego.es_estado_final(nuevo_estado):
+      analiza_final(juego, siguiente)
+    else:
+      cambia_turno(juego)
+      jugada_maquina(juego, procedimiento, siguiente)
+  else:
+    print('  {} es ilegal.'.format(m))
+    jugada_humana(juego, procedimiento, nodo_j)
+    
+
+
+def jugada_maquina(juego, procedimiento, nodo_j):
+  escribe_nodo_j(juego, nodo_j)
+  print('Mi turno.')
+  movimiento, estado = aplica_decision(juego, procedimiento, nodo_j)
+  if juego.es_estado_final(estado):
+    analiza_final(juego, {'estado': estado, 'jugador': MIN})
+  else:
+    cambia_turno(juego)
+    jugada_humana(juego, procedimiento, {'estado': estado, 'jugador': MIN})  
+
+
+def aplica_decision(juego, procedimiento, nodo_j):
+    decision = procedimiento[0](juego, nodo_j['estado'], procedimiento[1])
+    return procedimiento[0](juego, nodo_j['estado'], procedimiento[1])
+
+dodgem = Dodgem(3, 'blancas')
+control(dodgem, MIN, [decision_alfa_beta, 5])
