@@ -376,7 +376,7 @@ def minimax(juego, estado, profundidad):
 
 ## ------------------------------------------------------------------
 ## Ejercicio 1
-## ------------------------------------------------------------------
+## ------------------------------------------------------------------   
 
 ## Definir la clase DODGEM que implemente la representación del juego
 ## descrito y permita jugar para distintos tamaños de tablero.
@@ -562,7 +562,106 @@ def minimax(juego, estado, profundidad):
 ## El humano ha ganado
 ## >>>
 
-        
+class Dodgem():
+    def __init__(self, orden):
+        self.orden = orden
+        self.negras = {}
+        self.blancas = {}
+        for i in range(orden - 1):
+            self.negras['N'+str(i)] = [i, 0]
+            self.blancas['B'+str(i)] = [orden - 1, i + 1]
+   
+    def movimientos(self, estado):
+        movimientos = []
+        disponibles_N = {}
+        disponibles_B = {}
+        for key, ficha in self.negras.items():
+            disponibles_N[(key, 'derecha')] = [ficha[0], ficha[1] + 1]
+            disponibles_N[(key, 'arriba')] = [ficha[0] - 1, ficha[1]]
+            disponibles_N[(key, 'abajo')] = [ficha[0] + 1, ficha[1]]
+        for key, ficha in self.blancas.items():
+            disponibles_B[(key, 'derecha')] = [ficha[0], ficha[1] + 1]
+            disponibles_B[(key, 'arriba')] = [ficha[0] - 1, ficha[1]]
+            disponibles_B[(key, 'izquierda')] = [ficha[0], ficha[1] - 1]
+
+        #Evita ficha sobre ficha y salida por lugar equivocado
+        for ficha, movimiento in list(disponibles_N.items()):
+            if movimiento in self.negras.values() or movimiento in self.blancas.values():
+                del(disponibles_N[ficha])
+            if movimiento[0] == self.orden or movimiento[0] < 0 or movimiento[1] < 0:
+                del(disponibles_N[ficha])
+            
+        for ficha, movimiento in list(disponibles_B.items()):
+            if movimiento in self.negras.values() or movimiento in self.blancas.values():
+                del(disponibles_B[ficha])
+            if movimiento[0] == self.orden or movimiento[1] < 0 or \
+               movimiento[1] == self.orden:
+                del(disponibles_B[ficha])
+            
+        for ficha, movimiento in disponibles_N.items():
+            movimientos.append((ficha, movimiento))
+        for ficha, movimiento in disponibles_B.items():
+            movimientos.append((ficha, movimiento))
+
+        return movimientos
+    
+    def aplica(self, movimiento, estado):
+        nueva_pos = movimiento[1]
+        if nueva_pos[0] == self.orden or nueva_pos[1] == self.orden or \
+           nueva_pos[0] < 0 or nueva_pos[1] < 0:
+            if movimiento[0][0] in self.negras.keys():
+                del(self.negras[movimiento[0][0]])
+            else:
+                del(self.blancas[movimiento[0][0]])
+        else:
+            if movimiento[0][0] in self.negras.keys():
+                self.negras[movimiento[0][0]] = nueva_pos
+            else:
+                self.blancas[movimiento[0][0]] = nueva_pos
+        return self.negras, self.blancas
+            
+    def es_estado_final(self, estado):
+        if len(self.movimientos(estado)) == 0 or \
+           (len(estado[0]) == 0 and len(estado[1]) == 0):
+            return True
+        else:
+            return False
+
+    def es_estado_ganador(self, estado, turno, jugador):
+        pass
+
+    def f_evaluacion(self, estado, turno):
+        pass
+
+    def str_estado(self, estado):
+        print(' | ' + ' | '.join((str(i) for i in range(self.orden))))
+        print('-----' * self.orden)
+        for i in range(self.orden):
+            linea = str(i) + '|'
+            for j in range(self.orden):
+                if [i, j] in self.negras.values():
+                    linea += ' N |'
+                elif [i,j] in self.blancas.values():
+                    linea += ' B |'
+                else:
+                    linea += '   |'
+            print(linea)
+            print('-+' + '---+' * self.orden)
+ 
+    def str_movimiento(self, movimiento):
+        return movimiento[0]
+
+    def estado(self):
+        return self.negras, self.blancas
+
+juego = Dodgem(3)
+e = juego.estado()
+juego.str_estado(e)
+movimientos = juego.movimientos(e)
+print(movimientos)
+print(juego.str_movimiento(movimientos[0]))
+e = juego.aplica(movimientos[0], e)
+juego.str_estado(e)
 ## ------------------------------------------------------------------
 ## Ejercicio 2
 ## ------------------------------------------------------------------
