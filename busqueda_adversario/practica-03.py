@@ -563,7 +563,8 @@ def minimax(juego, estado, profundidad):
 ## >>>
 
 class Dodgem():
-    def __init__(self, orden):
+    def __init__(self, orden, turno = 'blancas'):
+        self.turno = turno
         self.orden = orden
         self.negras = {}
         self.blancas = {}
@@ -597,11 +598,13 @@ class Dodgem():
             if movimiento[0] == self.orden or movimiento[1] < 0 or \
                movimiento[1] == self.orden:
                 del(disponibles_B[ficha])
-            
-        for ficha, movimiento in disponibles_N.items():
-            movimientos.append((ficha, movimiento))
-        for ficha, movimiento in disponibles_B.items():
-            movimientos.append((ficha, movimiento))
+
+        if self.turno == 'negras':
+            for ficha, movimiento in disponibles_N.items():
+                movimientos.append((ficha, movimiento))
+        else:
+            for ficha, movimiento in disponibles_B.items():
+                movimientos.append((ficha, movimiento))
 
         return movimientos
     
@@ -642,7 +645,7 @@ class Dodgem():
         else:
             for pos in estado[1].values():
                 inv_pos = [self.orden - 1 - pos[0], pos[1]]
-                total += 15*inv_pos[0] + 5*inv_pos[1]
+                total += -15*inv_pos[0] - 5*inv_pos[1]
         return total
     
     def str_estado(self, estado):
@@ -674,7 +677,7 @@ print(movimientos)
 print(juego.str_movimiento(movimientos[0]))
 e = juego.aplica(movimientos[0], e)
 juego.str_estado(e)
-val = juego.f_evaluacion(e, 'negras')
+val = juego.f_evaluacion(e, 'blancas')
 print(val)
 ## ------------------------------------------------------------------
 ## Ejercicio 2
