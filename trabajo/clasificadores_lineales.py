@@ -8,13 +8,9 @@
 # --------------------------------------------------------------------------
 # Autor del trabajo:
 #
-# APELLIDOS:
-# NOMBRE: 
+# APELLIDOS: HUESO GOMEZ
+# NOMBRE: ROBERTO
 #
-# Segundo componente (si se trata de un grupo):
-#
-# APELLIDOS
-# NOMBRE:
 # ----------------------------------------------------------------------------
 
 
@@ -87,6 +83,22 @@
 #   y cambiar de clase a una proporción pequeña del total de ejemplos (por
 #   ejemplo el 10%). La proporción se da con prop_n_l_s. 
 
+#Evalua polinomios
+def evaluar_polinomio(coeficientes, valores):
+    return sum(map(lambda x, y: x*y, valores, coeficientes))
+
+import random
+
+def genera_conjunto_de_datos_l_s(rango,dim,n_datos):
+    hiperplano = [random.uniform(-rango, rango) for i in range(dim)]
+    X = [[random.uniform(-rango, rango) for i in range(dim)] for i in range(n_datos)]
+    Y = []
+    for sample in X:
+        if evaluar_polinomio(hiperplano, sample) > 0:
+            Y.append(1)
+        else:
+            Y.append(0)
+    return X, Y
 
 
 
