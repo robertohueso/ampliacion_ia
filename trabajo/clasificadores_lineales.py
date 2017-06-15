@@ -83,12 +83,13 @@
 #   y cambiar de clase a una proporción pequeña del total de ejemplos (por
 #   ejemplo el 10%). La proporción se da con prop_n_l_s. 
 
+import random
+
 #Evalua polinomios
 def evaluar_polinomio(coeficientes, valores):
     return sum(map(lambda x, y: x*y, valores, coeficientes))
 
-import random
-
+#Conjuntos linealmente separables
 def genera_conjunto_de_datos_l_s(rango,dim,n_datos):
     hiperplano = [random.uniform(-rango, rango) for i in range(dim)]
     X = [[random.uniform(-rango, rango) for i in range(dim)] for i in range(n_datos)]
@@ -100,8 +101,16 @@ def genera_conjunto_de_datos_l_s(rango,dim,n_datos):
             Y.append(0)
     return X, Y
 
-
-
+#Conjuntos no linealmente separables
+def genera_conjunto_de_datos_n_l_s(rango,dim,size,prop_n_l_s=0.1):
+    X, Y = genera_conjunto_de_datos_l_s(rango, dim, size)
+    elementos_a_modificar = random.sample(range(size), int(prop_n_l_s*size))
+    for i in elementos_a_modificar:
+        if Y[i] == 0:
+            Y[i] = 1
+        else:
+            Y[i] = 0
+    return X, Y
 
 
 
