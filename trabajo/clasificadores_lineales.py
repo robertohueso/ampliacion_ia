@@ -306,30 +306,19 @@ class ClasificadorNoEntrenado(Exception): pass
 # Out[13]: 0.82
 # ----------------------------------------------------------------
 
+class Clasificador():
+    def __init__(self, clases, normalización = False):
+        pass
 
+    def entrena(self, entr, clas_entr, n_epochs, rate = 0.1,
+                pesos_iniciales = None, rate_decay = False):
+        pass
 
+    def clasifica_prob(self, ej):
+        pass
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-
-    
-
-
+    def clasifica(self, ej):
+        pass
 
 
 # --------------------------
