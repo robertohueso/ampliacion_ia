@@ -84,21 +84,19 @@
 #   ejemplo el 10%). La proporción se da con prop_n_l_s. 
 
 import random
+import numpy as np
 
-#Evalua polinomios
-def evaluar_polinomio(coeficientes, valores):
-    return sum(map(lambda x, y: x*y, valores, coeficientes))
-
-#Conjuntos linealmente separables
 def genera_conjunto_de_datos_l_s(rango,dim,n_datos):
-    hiperplano = [random.uniform(-rango, rango) for i in range(dim)]
-    X = [[random.uniform(-rango, rango) for i in range(dim)] for i in range(n_datos)]
-    Y = []
-    for sample in X:
-        if evaluar_polinomio(hiperplano, sample) > 0:
-            Y.append(1)
+#Conjuntos linealmente separables
+    hiperplano = np.random.uniform(-rango, rango, dim)
+    X = np.random.uniform(-rango, rango, (n_datos, dim))
+    Y = np.empty(n_datos)
+    for i, sample in enumerate(X):
+        if np.inner(hiperplano, sample) > 0:
+            Y[i] = 1
         else:
-            Y.append(0)
+            Y[i] = 0
+    Y = Y.astype('int')
     return X, Y
 
 #Conjuntos no linealmente separables
@@ -111,10 +109,6 @@ def genera_conjunto_de_datos_n_l_s(rango,dim,size,prop_n_l_s=0.1):
         else:
             Y[i] = 0
     return X, Y
-
-
-
-
 
 # -----------------------------------
 # I.2. Clases y métodos a implementar
@@ -256,7 +250,8 @@ def genera_conjunto_de_datos_n_l_s(rango,dim,size,prop_n_l_s=0.1):
 # Si el clasificador aún no ha sido entrenado, tanto "clasifica" como
 # "clasifica_prob" deben devolver una excepción del siguiente tipo:
 
-class ClasificadorNoEntrenado(Exception): pass
+class ClasificadorNoEntrenado(Exception):
+    pass
 
 #  NOTA: Se aconseja probar el funcionamiento de los clasificadores con
 #  conjuntos de datos generados por las funciones del apartado anterior. 
