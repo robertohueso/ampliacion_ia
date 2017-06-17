@@ -323,7 +323,24 @@ class Clasificador():
 class Clasificador_Perceptron(Clasificador):
     def __init__(self, clases, normalizacion = False):
         super().__init__(clases, normalizacion)
-
+        self.pesos = None
+    
+    def entrena(self, entr, clas_entr, n_epochs, rate = 0.1,
+                pesos_iniciales = None, rate_decay = False):
+        
+        if pesos_iniciales is None:
+            pesos_iniciales = np.random.uniform(-1, 1, len(entr[0]))
+        self.pesos = pesos_iniciales
+        
+        self.entrenado = True
+        
+        rate_n = rate
+        for i in range(n_epochs):
+            for n, ej, clase in enumerate(entr), clas_entr:
+                if rate_decay:
+                    rate_n = rate + (2 / n**1.5)
+                self.pesos = self.pesos + rate_n * ej * (clase - self.clasifica(ej))
+ 
     def clasifica(self, ej):
         if not self.entrenado:
             raise ClasificadorNoEntrenado
