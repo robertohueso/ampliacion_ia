@@ -92,7 +92,7 @@ def genera_conjunto_de_datos_l_s(rango,dim,n_datos):
     X = np.random.uniform(-rango, rango, (n_datos, dim))
     Y = np.empty(n_datos)
     for i, sample in enumerate(X):
-        if np.inner(hiperplano, sample) > 0:
+        if np.inner(hiperplano, sample) >= 0:
             Y[i] = 1
         else:
             Y[i] = 0
@@ -305,6 +305,7 @@ class Clasificador():
     def __init__(self, clases, normalizacion = False):
         self.clases = clases
         self.normalizacion = normalizacion
+        self.entrenado = False
 
     def entrena(self, entr, clas_entr, n_epochs, rate = 0.1,
                 pesos_iniciales = None, rate_decay = False):
@@ -322,6 +323,14 @@ class Clasificador():
 class Clasificador_Perceptron(Clasificador):
     def __init__(self, clases, normalizacion = False):
         super().__init__(clases, normalizacion)
+
+    def clasifica(self, ej):
+        if not self.entrenado:
+            raise ClasificadorNoEntrenado
+        if np.inner(self.pesos, ej) >= 0:
+            return 1
+        else:
+            return 0
 
 # --------------------------
 # I.3. Curvas de aprendizaje
