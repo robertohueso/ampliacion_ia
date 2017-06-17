@@ -302,8 +302,9 @@ class ClasificadorNoEntrenado(Exception):
 # ----------------------------------------------------------------
 
 class Clasificador():
-    def __init__(self, clases, normalización = False):
-        pass
+    def __init__(self, clases, normalizacion = False):
+        self.clases = clases
+        self.normalizacion = normalizacion
 
     def entrena(self, entr, clas_entr, n_epochs, rate = 0.1,
                 pesos_iniciales = None, rate_decay = False):
@@ -315,6 +316,12 @@ class Clasificador():
     def clasifica(self, ej):
         pass
 
+
+
+#Clasificador Perceptron
+class Clasificador_Perceptron(Clasificador):
+    def __init__(self, clases, normalizacion = False):
+        super().__init__(clases, normalizacion)
 
 # --------------------------
 # I.3. Curvas de aprendizaje
