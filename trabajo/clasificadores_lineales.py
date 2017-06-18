@@ -460,6 +460,38 @@ class Clasificador_RL_L2_St(Clasificador_RL_L2_Batch):
                 o = self.sigmoide(ej)
                 self.pesos = self.pesos + rate_n * (clase-o) * ej * o * (1-o)
 
+#Clasificador regresion logistica ML Batch--------------------------------
+class Clasificador_RL_ML_Batch(Clasificador_RL_L2_Batch):
+    
+    def entrena(self, entr, clas_entr, n_epochs, rate = 0.1,
+                pesos_iniciales = None, rate_decay = False):
+        
+        #Normalizacion
+        if self.normalizacion:
+            self.media = np.mean(entr, axis = 0)
+            self.desviacion = np.std(entr, axis = 0)
+            entr = (entr - self.media) / self.desviacion
+        
+        #Inicializar pesos
+        if pesos_iniciales is None:
+            pesos_iniciales = np.random.uniform(-1, 1, len(entr[0]))
+        self.pesos = pesos_iniciales
+        
+        self.entrenado = True
+
+        #Entrenamiento
+        rate_n = rate
+        n = 1
+        for i in range(n_epochs):
+            if rate_decay:
+                rate_n = rate + (2 / n**1.5)
+                n += 1
+            gradiente = np.zeros(len(entr[0]))
+            for ej, clase in zip(entr, clas_entr):
+                o = self.sigmoide(ej)
+                gradiente += (clase - o) * ej
+            self.pesos = self.pesos + rate_n * gradiente
+
 # --------------------------
 # I.3. Curvas de aprendizaje
 # --------------------------
