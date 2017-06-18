@@ -301,6 +301,14 @@ class ClasificadorNoEntrenado(Exception):
 # Out[13]: 0.82
 # ----------------------------------------------------------------
 
+#Funciones auxiliares
+
+def normalizaDataset(dataset):
+    media = np.mean(dataset, axis = 0)
+    desviacion = np.std(dataset, axis = 0)
+    
+
+#Clases
 class Clasificador():
     def __init__(self, clases, normalizacion = False):
         self.clases = clases
@@ -328,12 +336,20 @@ class Clasificador_Perceptron(Clasificador):
     def entrena(self, entr, clas_entr, n_epochs, rate = 0.1,
                 pesos_iniciales = None, rate_decay = False):
         
+        #Normalizacion
+        if self.normalizacion:
+            self.media = np.mean(entr, axis = 0)
+            self.desviacion = np.std(entr, axis = 0)
+            entr = (entr - self.media) / self.desviacion
+        
+        #Inicializar pesos
         if pesos_iniciales is None:
             pesos_iniciales = np.random.uniform(-1, 1, len(entr[0]))
         self.pesos = pesos_iniciales
         
         self.entrenado = True
-        
+
+        #Entrenamiento
         rate_n = rate
         n = 1
         for i in range(n_epochs):
@@ -341,16 +357,26 @@ class Clasificador_Perceptron(Clasificador):
                 if rate_decay:
                     rate_n = rate + (2 / n**1.5)
                     n += 1
-                self.pesos = self.pesos + rate_n * ej * (clase - self.clasifica(ej))
- 
-    def clasifica(self, ej):
-        if not self.entrenado:
-            raise ClasificadorNoEntrenado
+                self.pesos = self.pesos + rate_n * ej * (clase - self.umbral(ej))
+
+    def umbral(self, ej):
         if np.inner(self.pesos, ej) >= 0:
             return 1
         else:
             return 0
 
+    def clasifica(self, ej):
+        if not self.entrenado:
+            raise ClasificadorNoEntrenado
+        else:
+            if self.normalizacion:
+                ej = (ej - self.media) / self.desviacion
+            return self.umbral(ej)
+
+#Clasificador regresion logistica min L2 batch
+class Clasificador_RL_L2_Batch(Clasificador):
+    def __init__(self, clases, normalizacion = False):
+        pass
 # --------------------------
 # I.3. Curvas de aprendizaje
 # --------------------------
