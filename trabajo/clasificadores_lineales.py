@@ -376,7 +376,60 @@ class Clasificador_Perceptron(Clasificador):
 #Clasificador regresion logistica min L2 batch
 class Clasificador_RL_L2_Batch(Clasificador):
     def __init__(self, clases, normalizacion = False):
-        pass
+        super().__init__(clases, normalizacion)
+        self.pesos = None
+    
+    def entrena(self, entr, clas_entr, n_epochs, rate = 0.1,
+                pesos_iniciales = None, rate_decay = False):
+        
+        #Normalizacion
+        if self.normalizacion:
+            self.media = np.mean(entr, axis = 0)
+            self.desviacion = np.std(entr, axis = 0)
+            entr = (entr - self.media) / self.desviacion
+        
+        #Inicializar pesos
+        if pesos_iniciales is None:
+            pesos_iniciales = np.random.uniform(-1, 1, len(entr[0]))
+        self.pesos = pesos_iniciales
+        
+        self.entrenado = True
+
+        #Entrenamiento
+        rate_n = rate
+        n = 1
+        for i in range(n_epochs):
+            if rate_decay:
+                rate_n = rate + (2 / n**1.5)
+                n += 1
+            gradiente = np.zeros(len(entr[0]))
+            for ej, clase in zip(entr, clas_entr):
+                o = self.sigmoide(ej)
+                gradiente += (clase - o) * o * (1 - o) * ej
+            gradiente = -2 * gradiente
+            self.pesos = self.pesos - rate_n * gradiente
+
+    def sigmoide(self, ej):
+        wx = np.inner(self.pesos, ej)
+        return 1 / (1 + np.exp(-wx))
+
+    def clasifica_prob(self,ej):
+        if not self.entrenado:
+            raise ClasificadorNoEntrenado
+        #Normalizacion
+        if self.normalizacion:
+            ej = (ej - self.media) / self.desviacion
+        #Clasificacion
+        return self.sigmoide(ej)
+
+    def clasifica(self, ej):
+        if not self.entrenado:
+            raise ClasificadorNoEntrenado
+        if self.clasifica_prob(ej) >= 0.5:
+            return 1
+        else:
+            return 0
+
 # --------------------------
 # I.3. Curvas de aprendizaje
 # --------------------------
