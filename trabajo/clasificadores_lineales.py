@@ -335,10 +335,12 @@ class Clasificador_Perceptron(Clasificador):
         self.entrenado = True
         
         rate_n = rate
+        n = 1
         for i in range(n_epochs):
-            for n, ej, clase in enumerate(entr), clas_entr:
+            for ej, clase in zip(entr, clas_entr):
                 if rate_decay:
                     rate_n = rate + (2 / n**1.5)
+                    n += 1
                 self.pesos = self.pesos + rate_n * ej * (clase - self.clasifica(ej))
  
     def clasifica(self, ej):
