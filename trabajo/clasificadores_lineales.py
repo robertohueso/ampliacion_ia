@@ -642,7 +642,29 @@ import matplotlib.pyplot as plt
 # Out[34]: ('Iris-versicolor', 'Iris-versicolor')
 # ----------------------------------------------------------------
 
+class Clasificador_RL_OvR():
+    def __init__(self, class_clasif, clases):
+        self.clases = clases
+        self.entrenado = False
+        self.clasificador = {}
+        for clase in clases:
+            self.clasificador[clase] = class_clasif([0,1])
 
+    def entrena(self, entr, clas_entr, n_epochs, rate=0.1, rate_decay=False):
+        self.entrenado = True
+        for clase in self.clases:
+            etiquetas = np.copy(clas_entr)
+            etiquetas = (etiquetas == clase).astype('int')
+            self.clasificador[clase].entrena(entr, etiquetas, n_epochs,
+                                             rate, rate_decay)
+    
+    def clasifica(self,ej):
+        if not self.entrenado:
+            raise ClasificadorNoEntrenado
+        clasificacion = {}
+        for clase in self.clasificador:
+            clasificacion[clase] = self.clasificador[clase].clasifica_prob(ej)
+        return max(clasificacion, key = clasificacion.get)
 
 
 # ------------------------------------------------
