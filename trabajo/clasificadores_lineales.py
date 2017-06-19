@@ -768,7 +768,13 @@ class Clasificador_RL_Softmax():
 # Out[36]: 0.9666666666666667
 # ---------------------------------------------------------
 
-
+def rendimiento(clf,X,Y):
+    total = len(X)
+    correctos = 0
+    for ej, clase in zip(X, Y):
+        if clf.clasifica(ej) == clase:
+            correctos += 1
+    return correctos / total
 
 
 # ----------------------------------
