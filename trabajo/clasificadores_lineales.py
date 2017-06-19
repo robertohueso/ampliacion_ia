@@ -735,7 +735,7 @@ class Clasificador_RL_Softmax():
         valores = np.zeros(len(self.clases))
         for i, clase in enumerate(self.clases):
             valores[i] = np.inner(self.pesos[clase], ej)
-        return self.softmax(valores)
+        return np.argmax(self.softmax(valores))
 
 
 
