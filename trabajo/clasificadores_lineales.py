@@ -301,41 +301,17 @@ class ClasificadorNoEntrenado(Exception):
 # Out[13]: 0.82
 # ----------------------------------------------------------------
 
-#Funciones auxiliares
 
-def normalizaDataset(dataset):
-    media = np.mean(dataset, axis = 0)
-    desviacion = np.std(dataset, axis = 0)
-    
-
-#Clases
+#Clasificador Generico
 class Clasificador():
     def __init__(self, clases, normalizacion = False):
         self.clases = clases
         self.normalizacion = normalizacion
         self.entrenado = False
-
-    def entrena(self, entr, clas_entr, n_epochs, rate = 0.1,
-                pesos_iniciales = None, rate_decay = False):
-        pass
-
-    def clasifica_prob(self, ej):
-        pass
-
-    def clasifica(self, ej):
-        pass
-
-
-
-#Clasificador Perceptron---------------------------------------------------
-class Clasificador_Perceptron(Clasificador):
-    def __init__(self, clases, normalizacion = False):
-        super().__init__(clases, normalizacion)
         self.pesos = None
-    
+
     def entrena(self, entr, clas_entr, n_epochs, rate = 0.1,
                 pesos_iniciales = None, rate_decay = False):
-        
         #Normalizacion
         if self.normalizacion:
             self.media = np.mean(entr, axis = 0)
@@ -348,6 +324,51 @@ class Clasificador_Perceptron(Clasificador):
         self.pesos = pesos_iniciales
         
         self.entrenado = True
+
+    def clasifica_prob(self, ej):
+        if not self.entrenado:
+            raise ClasificadorNoEntrenado
+
+    def clasifica(self, ej):
+        if not self.entrenado:
+            raise ClasificadorNoEntrenado
+
+#Clasificador Generico Regresion Logistica
+class Clasificador_RL(Clasificador):
+    
+    def entrena(self, entr, clas_entr, n_epochs, rate = 0.1,
+                pesos_iniciales = None, rate_decay = False):
+        #Inicializar
+        super().entrena(entr, clas_entr, n_epochs, rate,
+                        pesos_iniciales, rate_decay)
+    
+    def sigmoide(self, ej):
+        wx = np.inner(self.pesos, ej)
+        return 1 / (1 + np.exp(-wx))
+    
+    def clasifica_prob(self,ej):
+        super().clasifica_prob(ej)
+        #Normalizacion
+        if self.normalizacion:
+            ej = (ej - self.media) / self.desviacion
+        #Clasificacion
+        return self.sigmoide(ej)
+    
+    def clasifica(self, ej):
+        super().clasifica(ej)
+        if self.clasifica_prob(ej) >= 0.5:
+            return 1
+        else:
+            return 0
+
+#Clasificador Perceptron---------------------------------------------------
+class Clasificador_Perceptron(Clasificador):
+    
+    def entrena(self, entr, clas_entr, n_epochs, rate = 0.1,
+                pesos_iniciales = None, rate_decay = False):
+        #Inicializar
+        super().entrena(entr, clas_entr, n_epochs, rate,
+                        pesos_iniciales, rate_decay)
 
         #Entrenamiento
         rate_n = rate
@@ -366,34 +387,19 @@ class Clasificador_Perceptron(Clasificador):
             return 0
 
     def clasifica(self, ej):
-        if not self.entrenado:
-            raise ClasificadorNoEntrenado
-        else:
-            if self.normalizacion:
-                ej = (ej - self.media) / self.desviacion
-            return self.umbral(ej)
+        super().clasifica(ej)
+        if self.normalizacion:
+            ej = (ej - self.media) / self.desviacion
+        return self.umbral(ej)
 
 #Clasificador regresion logistica min L2 batch-----------------------------
-class Clasificador_RL_L2_Batch(Clasificador):
-    def __init__(self, clases, normalizacion = False):
-        super().__init__(clases, normalizacion)
-        self.pesos = None
+class Clasificador_RL_L2_Batch(Clasificador_RL):
     
     def entrena(self, entr, clas_entr, n_epochs, rate = 0.1,
                 pesos_iniciales = None, rate_decay = False):
-        
-        #Normalizacion
-        if self.normalizacion:
-            self.media = np.mean(entr, axis = 0)
-            self.desviacion = np.std(entr, axis = 0)
-            entr = (entr - self.media) / self.desviacion
-        
-        #Inicializar pesos
-        if pesos_iniciales is None:
-            pesos_iniciales = np.random.uniform(-1, 1, len(entr[0]))
-        self.pesos = pesos_iniciales
-        
-        self.entrenado = True
+        #Inicializar
+        super().entrena(entr, clas_entr, n_epochs, rate,
+                        pesos_iniciales, rate_decay)
 
         #Entrenamiento
         rate_n = rate
@@ -409,46 +415,15 @@ class Clasificador_RL_L2_Batch(Clasificador):
             gradiente = -2 * gradiente
             self.pesos = self.pesos - rate_n * gradiente
 
-    def sigmoide(self, ej):
-        wx = np.inner(self.pesos, ej)
-        return 1 / (1 + np.exp(-wx))
-
-    def clasifica_prob(self,ej):
-        if not self.entrenado:
-            raise ClasificadorNoEntrenado
-        #Normalizacion
-        if self.normalizacion:
-            ej = (ej - self.media) / self.desviacion
-        #Clasificacion
-        return self.sigmoide(ej)
-
-    def clasifica(self, ej):
-        if not self.entrenado:
-            raise ClasificadorNoEntrenado
-        if self.clasifica_prob(ej) >= 0.5:
-            return 1
-        else:
-            return 0
-
 #Clasificador regresion logistica L2 St--------------------------------
-class Clasificador_RL_L2_St(Clasificador_RL_L2_Batch):
+class Clasificador_RL_L2_St(Clasificador_RL):
     
     def entrena(self, entr, clas_entr, n_epochs, rate = 0.1,
                 pesos_iniciales = None, rate_decay = False):
+        #Inicializar
+        super().entrena(entr, clas_entr, n_epochs, rate,
+                        pesos_iniciales, rate_decay)
         
-        #Normalizacion
-        if self.normalizacion:
-            self.media = np.mean(entr, axis = 0)
-            self.desviacion = np.std(entr, axis = 0)
-            entr = (entr - self.media) / self.desviacion
-        
-        #Inicializar pesos
-        if pesos_iniciales is None:
-            pesos_iniciales = np.random.uniform(-1, 1, len(entr[0]))
-        self.pesos = pesos_iniciales
-        
-        self.entrenado = True
-
         #Entrenamiento
         rate_n = rate
         n = 1
@@ -461,23 +436,13 @@ class Clasificador_RL_L2_St(Clasificador_RL_L2_Batch):
                 self.pesos = self.pesos + rate_n * (clase-o) * ej * o * (1-o)
 
 #Clasificador regresion logistica ML Batch--------------------------------
-class Clasificador_RL_ML_Batch(Clasificador_RL_L2_Batch):
+class Clasificador_RL_ML_Batch(Clasificador_RL):
     
     def entrena(self, entr, clas_entr, n_epochs, rate = 0.1,
                 pesos_iniciales = None, rate_decay = False):
-        
-        #Normalizacion
-        if self.normalizacion:
-            self.media = np.mean(entr, axis = 0)
-            self.desviacion = np.std(entr, axis = 0)
-            entr = (entr - self.media) / self.desviacion
-        
-        #Inicializar pesos
-        if pesos_iniciales is None:
-            pesos_iniciales = np.random.uniform(-1, 1, len(entr[0]))
-        self.pesos = pesos_iniciales
-        
-        self.entrenado = True
+        #Inicializar
+        super().entrena(entr, clas_entr, n_epochs, rate,
+                        pesos_iniciales, rate_decay)
 
         #Entrenamiento
         rate_n = rate
@@ -493,24 +458,14 @@ class Clasificador_RL_ML_Batch(Clasificador_RL_L2_Batch):
             self.pesos = self.pesos + rate_n * gradiente
 
 #Clasificador regresion logistica ML St--------------------------------
-class Clasificador_RL_ML_St(Clasificador_RL_L2_Batch):
+class Clasificador_RL_ML_St(Clasificador_RL):
     
     def entrena(self, entr, clas_entr, n_epochs, rate = 0.1,
                 pesos_iniciales = None, rate_decay = False):
+        #Inicializar
+        super().entrena(entr, clas_entr, n_epochs, rate,
+                        pesos_iniciales, rate_decay)
         
-        #Normalizacion
-        if self.normalizacion:
-            self.media = np.mean(entr, axis = 0)
-            self.desviacion = np.std(entr, axis = 0)
-            entr = (entr - self.media) / self.desviacion
-        
-        #Inicializar pesos
-        if pesos_iniciales is None:
-            pesos_iniciales = np.random.uniform(-1, 1, len(entr[0]))
-        self.pesos = pesos_iniciales
-        
-        self.entrenado = True
-
         #Entrenamiento
         rate_n = rate
         n = 1
@@ -842,3 +797,7 @@ def rendimiento(clf,X,Y):
 # Por dar una referencia, se pueden obtener clasificadores para el problema de
 # los votos con un rendimiento sobre el test mayor al 90%, y para los dígitos
 # un rendimiento superior al 80%.  
+
+#def mejor_configuracion_OvR(class_clasif, clases, X_train, Y_train, X_val, Y_val):
+#    casificador = class_clasif(clases)
+    
