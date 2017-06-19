@@ -694,6 +694,48 @@ class Clasificador_RL_OvR():
 #        .....            
 
 
+class Clasificador_RL_Softmax():
+    def __init__(self, clases):
+        self.clases = clases
+        self.entrenado = False
+        self.pesos = {}
+    
+    def entrena(self, entr, clas_entr, n_epochs, rate=0.1, rate_decay=False):
+        self.entrenado = True
+        
+        for clase in self.clases:
+            self.pesos[clase] = np.random.uniform(-1, 1, len(entr[0]))
+        
+        for clase in self.clases:
+            etiquetas = np.copy(clas_entr)
+            etiquetas = (etiquetas == clase).astype('int')
+            rate_n = rate
+            n = 1
+            for i in range(n_epochs):
+                for ej, clasific in zip(entr, etiquetas):
+                    if rate_decay:
+                        rate_n = rate + (2 / n**1.5)
+                        n += 1
+                    sum_ewx = 0
+                    for clase in self.clases:
+                        sum_ewx += np.exp(np.inner(self.pesos[clase], ej))
+                    self.pesos[clase] = self.pesos[clase] + rate_n * \
+                                        (clasific - \
+                                        (np.exp(np.inner(self.pesos[clase], ej)) / \
+                                         sum_ewx)) * ej
+
+    def softmax(self, valores):
+        e_x = np.exp(valores)
+        return e_x / np.sum(e_x)
+
+    def clasifica(self,ej):
+        if not self.entrenado:
+            raise ClasificadorNoEntrenado
+        
+        valores = np.zeros(len(self.clases))
+        for i, clase in enumerate(self.clases):
+            valores[i] = np.inner(self.pesos[clase], ej)
+        return self.softmax(valores)
 
 
 
