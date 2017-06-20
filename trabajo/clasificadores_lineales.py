@@ -532,8 +532,9 @@ def rendimiento(clf,X,Y):
             correctos += 1
     return correctos / total
 
-def dibujar_grafico(valores): 
+def dibujar_grafico(valores, titulo): 
     plt.plot(range(1,len(valores)+1), valores, marker='o')
+    plt.title(titulo)
     plt.xlabel('Epochs')
     plt.ylabel('Porcentaje de aciertos')
     plt.show()
@@ -575,7 +576,7 @@ class Clasificador_Perceptron_Graph(Clasificador):
 X, Y = genera_conjunto_de_datos_l_s(4,8,400)
 clas=Clasificador_Perceptron_Graph([0,1], normalizacion = True)
 valores = clas.entrena(X, Y, 100, rate_decay=True, rate=0.001)
-dibujar_grafico(valores)
+dibujar_grafico(valores, "Perceptron")
 
 #Clasificador regresion logistica min L2 batch Graph-----------------------------
 class Clasificador_RL_L2_Batch_Graph(Clasificador_RL):
@@ -585,11 +586,12 @@ class Clasificador_RL_L2_Batch_Graph(Clasificador_RL):
         #Inicializar
         super().entrena(entr, clas_entr, n_epochs, rate,
                         pesos_iniciales, rate_decay)
-
+        aciertos = []
         #Entrenamiento
         rate_n = rate
         n = 1
         for i in range(n_epochs):
+            aciertos.append(rendimiento(self, entr, clas_entr))
             if rate_decay:
                 rate_n = rate + (2 / n**1.5)
                 n += 1
@@ -599,6 +601,12 @@ class Clasificador_RL_L2_Batch_Graph(Clasificador_RL):
                 gradiente += (clase - o) * o * (1 - o) * ej
             gradiente = -2 * gradiente
             self.pesos = self.pesos - rate_n * gradiente
+        return aciertos
+
+X, Y = genera_conjunto_de_datos_l_s(4,8,400)
+clas=Clasificador_RL_L2_Batch_Graph([0,1], normalizacion = True)
+valores = clas.entrena(X, Y, 100, rate_decay=True, rate=0.001)
+dibujar_grafico(valores, "RL_L2_Batch")
 
 #Clasificador regresion logistica L2 St Graph--------------------------------
 class Clasificador_RL_L2_St_Graph(Clasificador_RL):
