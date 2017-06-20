@@ -536,7 +536,7 @@ def dibujar_grafico(valores, titulo):
     plt.plot(range(1,len(valores)+1), valores, marker='o')
     plt.title(titulo)
     plt.xlabel('Epochs')
-    plt.ylabel('Porcentaje de aciertos')
+    plt.ylabel('Proporcion de aciertos')
     plt.show()
 
 #Clasificador Perceptron Graph---------------------------------------------------
@@ -573,10 +573,6 @@ class Clasificador_Perceptron_Graph(Clasificador):
             ej = (ej - self.media) / self.desviacion
         return self.umbral(ej)
 
-X, Y = genera_conjunto_de_datos_l_s(4,8,400)
-clas=Clasificador_Perceptron_Graph([0,1], normalizacion = True)
-valores = clas.entrena(X, Y, 100, rate_decay=True, rate=0.001)
-dibujar_grafico(valores, "Perceptron")
 
 #Clasificador regresion logistica min L2 batch Graph-----------------------------
 class Clasificador_RL_L2_Batch_Graph(Clasificador_RL):
@@ -603,10 +599,6 @@ class Clasificador_RL_L2_Batch_Graph(Clasificador_RL):
             self.pesos = self.pesos - rate_n * gradiente
         return aciertos
 
-X, Y = genera_conjunto_de_datos_l_s(4,8,400)
-clas=Clasificador_RL_L2_Batch_Graph([0,1], normalizacion = True)
-valores = clas.entrena(X, Y, 100, rate_decay=True, rate=0.001)
-dibujar_grafico(valores, "RL_L2_Batch")
 
 #Clasificador regresion logistica L2 St Graph--------------------------------
 class Clasificador_RL_L2_St_Graph(Clasificador_RL):
@@ -630,10 +622,6 @@ class Clasificador_RL_L2_St_Graph(Clasificador_RL):
                 self.pesos = self.pesos + rate_n * (clase-o) * ej * o * (1-o)
         return aciertos
 
-X, Y = genera_conjunto_de_datos_l_s(4,8,400)
-clas=Clasificador_RL_L2_St_Graph([0,1], normalizacion = True)
-valores = clas.entrena(X, Y, 100, rate_decay=True, rate=0.001)
-dibujar_grafico(valores, "RL_L2_St")
 
 #Clasificador regresion logistica ML Batch GRAPH--------------------------------
 class Clasificador_RL_ML_Batch_Graph(Clasificador_RL):
@@ -659,10 +647,6 @@ class Clasificador_RL_ML_Batch_Graph(Clasificador_RL):
             self.pesos = self.pesos + rate_n * gradiente
         return aciertos
 
-X, Y = genera_conjunto_de_datos_l_s(4,8,400)
-clas=Clasificador_RL_ML_Batch_Graph([0,1], normalizacion = True)
-valores = clas.entrena(X, Y, 100, rate_decay=True, rate=0.001)
-dibujar_grafico(valores, "RL_ML_Batch")
 
 #Clasificador regresion logistica ML St GRAPH--------------------------------
 class Clasificador_RL_ML_St_Graph(Clasificador_RL):
@@ -686,10 +670,31 @@ class Clasificador_RL_ML_St_Graph(Clasificador_RL):
                 self.pesos = self.pesos + rate_n * (clase-o) * ej
         return aciertos
 
-X, Y = genera_conjunto_de_datos_l_s(4,8,400)
-clas=Clasificador_RL_ML_St_Graph([0,1], normalizacion = True)
-valores = clas.entrena(X, Y, 100, rate_decay=True, rate=0.001)
-dibujar_grafico(valores, "RL_ML_St")
+def entrenar_y_dibujar(n_epochs, rate, rate_decay, normalizacion, n_datos,
+                       dim_datos, rango, separables = True):
+    if separables:
+        X, Y = genera_conjunto_de_datos_l_s(rango, dim_datos, n_datos)
+    else:
+        X, Y = genera_conjunto_de_datos_n_l_s(rango, dim_datos, n_datos)
+    #Clasificadores
+    perceptron = Clasificador_Perceptron_Graph([0,1], normalizacion)
+    RL_L2_Batch = Clasificador_RL_L2_Batch_Graph([0,1], normalizacion)
+    RL_L2_St = Clasificador_RL_L2_St_Graph([0,1], normalizacion)
+    RL_ML_Batch = Clasificador_RL_ML_Batch_Graph([0,1], normalizacion)
+    RL_ML_St = Clasificador_RL_ML_St_Graph([0,1], normalizacion)
+    #Entrenamientos
+    valores = {}
+    valores['Perceptron'] = perceptron.entrena(X, Y, n_epochs, rate, rate_decay=rate_decay)
+    valores['RL_L2_Batch'] = RL_L2_Batch.entrena(X, Y, n_epochs, rate, rate_decay=rate_decay)
+    valores['RL_L2_St'] = RL_L2_St.entrena(X, Y, n_epochs, rate, rate_decay=rate_decay)
+    valores['RL_ML_Batch'] = RL_ML_Batch.entrena(X, Y, n_epochs, rate, rate_decay=rate_decay)
+    valores['RL_ML_St'] = RL_ML_St.entrena(X, Y, n_epochs, rate, rate_decay=rate_decay)
+    #Graficos
+    for titulo, valor in valores.items():
+        dibujar_grafico(valor, titulo)
+
+entrenar_y_dibujar(n_epochs=100, rate=0.001, rate_decay=True, normalizacion=False,
+                   n_datos=600, dim_datos=4, rango=3, separables=False)
 
 # ==================================
 # PARTE II: CLASIFICACIÓN MULTICLASE
