@@ -643,11 +643,12 @@ class Clasificador_RL_ML_Batch_Graph(Clasificador_RL):
         #Inicializar
         super().entrena(entr, clas_entr, n_epochs, rate,
                         pesos_iniciales, rate_decay)
-
+        aciertos = []
         #Entrenamiento
         rate_n = rate
         n = 1
         for i in range(n_epochs):
+            aciertos.append(rendimiento(self, entr, clas_entr))
             if rate_decay:
                 rate_n = rate + (2 / n**1.5)
                 n += 1
@@ -656,6 +657,12 @@ class Clasificador_RL_ML_Batch_Graph(Clasificador_RL):
                 o = self.sigmoide(ej)
                 gradiente += (clase - o) * ej
             self.pesos = self.pesos + rate_n * gradiente
+        return aciertos
+
+X, Y = genera_conjunto_de_datos_l_s(4,8,400)
+clas=Clasificador_RL_ML_Batch_Graph([0,1], normalizacion = True)
+valores = clas.entrena(X, Y, 100, rate_decay=True, rate=0.001)
+dibujar_grafico(valores, "RL_ML_Batch")
 
 #Clasificador regresion logistica ML St GRAPH--------------------------------
 class Clasificador_RL_ML_St_Graph(Clasificador_RL):
@@ -665,17 +672,24 @@ class Clasificador_RL_ML_St_Graph(Clasificador_RL):
         #Inicializar
         super().entrena(entr, clas_entr, n_epochs, rate,
                         pesos_iniciales, rate_decay)
-        
+        aciertos = []
         #Entrenamiento
         rate_n = rate
         n = 1
         for i in range(n_epochs):
+            aciertos.append(rendimiento(self, entr, clas_entr))
             for ej, clase in zip(entr, clas_entr):
                 if rate_decay:
                     rate_n = rate + (2 / n**1.5)
                     n += 1
                 o = self.sigmoide(ej)
                 self.pesos = self.pesos + rate_n * (clase-o) * ej
+        return aciertos
+
+X, Y = genera_conjunto_de_datos_l_s(4,8,400)
+clas=Clasificador_RL_ML_St_Graph([0,1], normalizacion = True)
+valores = clas.entrena(X, Y, 100, rate_decay=True, rate=0.001)
+dibujar_grafico(valores, "RL_ML_St")
 
 # ==================================
 # PARTE II: CLASIFICACIÓN MULTICLASE
