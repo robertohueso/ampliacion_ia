@@ -523,14 +523,144 @@ import matplotlib.pyplot as plt
 # extra puede enlentecer algo el proceso de entrenamiento y si fuera necesario
 # puede quitarse una vez se realize este apartado.
 
+#La defin antes para ahorrarme reescribir un codigo muy similar
+def rendimiento(clf,X,Y):
+    total = len(X)
+    correctos = 0
+    for ej, clase in zip(X, Y):
+        if clf.clasifica(ej) == clase:
+            correctos += 1
+    return correctos / total
 
+def dibujar_grafico(valores): 
+    plt.plot(range(1,len(valores)+1), valores, marker='o')
+    plt.xlabel('Epochs')
+    plt.ylabel('Porcentaje de aciertos')
+    plt.show()
 
+#Clasificador Perceptron Graph---------------------------------------------------
+class Clasificador_Perceptron_Graph(Clasificador):
+    
+    def entrena(self, entr, clas_entr, n_epochs, rate = 0.1,
+                pesos_iniciales = None, rate_decay = False):
+        #Inicializar
+        super().entrena(entr, clas_entr, n_epochs, rate,
+                        pesos_iniciales, rate_decay)
+        #Graficos
+        aciertos = []
+        #Entrenamiento
+        rate_n = rate
+        n = 1
+        for i in range(n_epochs):
+            aciertos.append(rendimiento(self, entr, clas_entr))
+            for ej, clase in zip(entr, clas_entr):
+                if rate_decay:
+                    rate_n = rate + (2 / n**1.5)
+                    n += 1
+                self.pesos = self.pesos + rate_n * ej * (clase - self.umbral(ej))
+        return aciertos
 
+    def umbral(self, ej):
+        if np.inner(self.pesos, ej) >= 0:
+            return 1
+        else:
+            return 0
 
+    def clasifica(self, ej):
+        super().clasifica(ej)
+        if self.normalizacion:
+            ej = (ej - self.media) / self.desviacion
+        return self.umbral(ej)
 
+X, Y = genera_conjunto_de_datos_l_s(4,8,400)
+clas=Clasificador_Perceptron_Graph([0,1], normalizacion = True)
+valores = clas.entrena(X, Y, 100, rate_decay=True, rate=0.001)
+dibujar_grafico(valores)
 
+#Clasificador regresion logistica min L2 batch Graph-----------------------------
+class Clasificador_RL_L2_Batch_Graph(Clasificador_RL):
+    
+    def entrena(self, entr, clas_entr, n_epochs, rate = 0.1,
+                pesos_iniciales = None, rate_decay = False):
+        #Inicializar
+        super().entrena(entr, clas_entr, n_epochs, rate,
+                        pesos_iniciales, rate_decay)
 
+        #Entrenamiento
+        rate_n = rate
+        n = 1
+        for i in range(n_epochs):
+            if rate_decay:
+                rate_n = rate + (2 / n**1.5)
+                n += 1
+            gradiente = np.zeros(len(entr[0]))
+            for ej, clase in zip(entr, clas_entr):
+                o = self.sigmoide(ej)
+                gradiente += (clase - o) * o * (1 - o) * ej
+            gradiente = -2 * gradiente
+            self.pesos = self.pesos - rate_n * gradiente
 
+#Clasificador regresion logistica L2 St Graph--------------------------------
+class Clasificador_RL_L2_St_Graph(Clasificador_RL):
+    
+    def entrena(self, entr, clas_entr, n_epochs, rate = 0.1,
+                pesos_iniciales = None, rate_decay = False):
+        #Inicializar
+        super().entrena(entr, clas_entr, n_epochs, rate,
+                        pesos_iniciales, rate_decay)
+        
+        #Entrenamiento
+        rate_n = rate
+        n = 1
+        for i in range(n_epochs):
+            for ej, clase in zip(entr, clas_entr):
+                if rate_decay:
+                    rate_n = rate + (2 / n**1.5)
+                    n += 1
+                o = self.sigmoide(ej)
+                self.pesos = self.pesos + rate_n * (clase-o) * ej * o * (1-o)
+
+#Clasificador regresion logistica ML Batch GRAPH--------------------------------
+class Clasificador_RL_ML_Batch_Graph(Clasificador_RL):
+    
+    def entrena(self, entr, clas_entr, n_epochs, rate = 0.1,
+                pesos_iniciales = None, rate_decay = False):
+        #Inicializar
+        super().entrena(entr, clas_entr, n_epochs, rate,
+                        pesos_iniciales, rate_decay)
+
+        #Entrenamiento
+        rate_n = rate
+        n = 1
+        for i in range(n_epochs):
+            if rate_decay:
+                rate_n = rate + (2 / n**1.5)
+                n += 1
+            gradiente = np.zeros(len(entr[0]))
+            for ej, clase in zip(entr, clas_entr):
+                o = self.sigmoide(ej)
+                gradiente += (clase - o) * ej
+            self.pesos = self.pesos + rate_n * gradiente
+
+#Clasificador regresion logistica ML St GRAPH--------------------------------
+class Clasificador_RL_ML_St_Graph(Clasificador_RL):
+    
+    def entrena(self, entr, clas_entr, n_epochs, rate = 0.1,
+                pesos_iniciales = None, rate_decay = False):
+        #Inicializar
+        super().entrena(entr, clas_entr, n_epochs, rate,
+                        pesos_iniciales, rate_decay)
+        
+        #Entrenamiento
+        rate_n = rate
+        n = 1
+        for i in range(n_epochs):
+            for ej, clase in zip(entr, clas_entr):
+                if rate_decay:
+                    rate_n = rate + (2 / n**1.5)
+                    n += 1
+                o = self.sigmoide(ej)
+                self.pesos = self.pesos + rate_n * (clase-o) * ej
 
 # ==================================
 # PARTE II: CLASIFICACIÓN MULTICLASE
