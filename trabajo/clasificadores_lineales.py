@@ -670,7 +670,7 @@ class Clasificador_RL_ML_St_Graph(Clasificador_RL):
                 self.pesos = self.pesos + rate_n * (clase-o) * ej
         return aciertos
 
-def entrenar_y_dibujar(n_epochs, rate, rate_decay, normalizacion, n_datos,
+def entrenar_y_dibujar_binarios(n_epochs, rate, rate_decay, normalizacion, n_datos,
                        dim_datos, rango, separables = True):
     if separables:
         X, Y = genera_conjunto_de_datos_l_s(rango, dim_datos, n_datos)
@@ -693,7 +693,7 @@ def entrenar_y_dibujar(n_epochs, rate, rate_decay, normalizacion, n_datos,
     for titulo, valor in valores.items():
         dibujar_grafico(valor, titulo)
 
-entrenar_y_dibujar(n_epochs=100, rate=0.001, rate_decay=True, normalizacion=False,
+entrenar_y_dibujar_binarios(n_epochs=100, rate=0.001, rate_decay=True, normalizacion=False,
                    n_datos=600, dim_datos=4, rango=3, separables=False)
 
 # ==================================
@@ -774,8 +774,8 @@ class Clasificador_RL_OvR():
         for clase in self.clases:
             etiquetas = np.copy(clas_entr)
             etiquetas = (etiquetas == clase).astype('int')
-            self.clasificador[clase].entrena(entr, etiquetas, n_epochs,
-                                             rate, rate_decay)
+            self.clasificador[clase].entrena(entr, etiquetas, n_epochs=n_epochs,
+                                             rate=rate, rate_decay=rate_decay)
     
     def clasifica(self,ej):
         if not self.entrenado:
@@ -962,6 +962,48 @@ def rendimiento(clf,X,Y):
 # los votos con un rendimiento sobre el test mayor al 90%, y para los dígitos
 # un rendimiento superior al 80%.  
 
-#def mejor_configuracion_OvR(class_clasif, clases, X_train, Y_train, X_val, Y_val):
-#    casificador = class_clasif(clases)
-    
+def entrenar_y_rendimiento_multis(n_epochs, rate, rate_decay,
+                              clases, X, Y, X_val, Y_val):
+    clasif = {}
+    clasif['ovr_perceptron'] = Clasificador_Perceptron(clases)
+    clasif['ovr_rl_l2_batch'] = Clasificador_RL_OvR(Clasificador_RL_L2_Batch, clases)
+    clasif['ovr_rl_l2_st'] = Clasificador_RL_OvR(Clasificador_RL_L2_St, clases)
+    clasif['ovr_rl_ml_batch'] = Clasificador_RL_OvR(Clasificador_RL_ML_Batch, clases)
+    clasif['ovr_rl_ml_st'] = Clasificador_RL_OvR(Clasificador_RL_ML_St, clases)
+    clasif['rl_softmax'] = Clasificador_RL_Softmax(clases)
+    #Entrenamientos
+    resultado_val = {}
+    for nombre, clasificador in clasif.items():
+        clasificador.entrena(X, Y, n_epochs=n_epochs, rate=rate, rate_decay=rate_decay)
+        resultado_val[nombre] = rendimiento(clasificador, X_val, Y_val)
+    return max(resultado_val, key = resultado_val.get)
+
+#VOTOS------------------------------------------------------------------------
+from votos import *
+print('---VOTOS---')
+for i, partido in enumerate(votos_entr_clas):
+    if partido == 'democrata':
+        votos_entr_clas[i] = 0
+    else:
+        votos_entr_clas[i] = 1
+for i, partido in enumerate(votos_valid_clas):
+    if partido == 'democrata':
+        votos_entr_clas[i] = 0
+    else:
+        votos_entr_clas[i] = 1
+for i, partido in enumerate(votos_test_clas):
+    if partido == 'democrata':
+        votos_entr_clas[i] = 0
+    else:
+        votos_entr_clas[i] = 1
+
+votos_entr = np.array(votos_entr)
+votos_entr_clas = np.array(votos_entr_clas)
+votos_valid = np.array(votos_valid)
+votos_valid_clas = np.array(votos_valid_clas)
+
+print(entrenar_y_rendimiento_multis(100, 0.01, True, [0,1], votos_entr,
+                                    votos_entr_clas, votos_valid,
+                                    votos_valid_clas))
+#cl = Clasificador_RL_OvR(Clasificador_Perceptron, [0,1])
+#cl.entrena(votos_entr, votos_entr_clas, 100)
