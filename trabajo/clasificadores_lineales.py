@@ -976,7 +976,9 @@ def entrenar_y_rendimiento_multis(n_epochs, rate, rate_decay,
     for nombre, clasificador in clasif.items():
         clasificador.entrena(X, Y, n_epochs=n_epochs, rate=rate, rate_decay=rate_decay)
         resultado_val[nombre] = rendimiento(clasificador, X_val, Y_val)
-    return max(resultado_val, key = resultado_val.get)
+    print(resultado_val)
+    mejor_clasificador = max(resultado_val, key = resultado_val.get)
+    return mejor_clasificador, resultado_val[mejor_clasificador]
 
 #VOTOS------------------------------------------------------------------------
 from votos import *
@@ -988,21 +990,21 @@ for i, partido in enumerate(votos_entr_clas):
         votos_entr_clas[i] = 1
 for i, partido in enumerate(votos_valid_clas):
     if partido == 'democrata':
-        votos_entr_clas[i] = 0
+        votos_valid_clas[i] = 0
     else:
-        votos_entr_clas[i] = 1
+        votos_valid_clas[i] = 1
 for i, partido in enumerate(votos_test_clas):
     if partido == 'democrata':
-        votos_entr_clas[i] = 0
+        votos_test_clas[i] = 0
     else:
-        votos_entr_clas[i] = 1
+        votos_test_clas[i] = 1
 
 votos_entr = np.array(votos_entr)
 votos_entr_clas = np.array(votos_entr_clas)
 votos_valid = np.array(votos_valid)
 votos_valid_clas = np.array(votos_valid_clas)
 
-print(entrenar_y_rendimiento_multis(100, 0.01, True, [0,1], votos_entr,
+print(entrenar_y_rendimiento_multis(500, 0.001, True, [0,1], votos_entr,
                                     votos_entr_clas, votos_valid,
                                     votos_valid_clas))
 #cl = Clasificador_RL_OvR(Clasificador_Perceptron, [0,1])
