@@ -1004,8 +1004,38 @@ votos_entr_clas = np.array(votos_entr_clas)
 votos_valid = np.array(votos_valid)
 votos_valid_clas = np.array(votos_valid_clas)
 
-print(entrenar_y_rendimiento_multis(500, 0.001, True, [0,1], votos_entr,
+print(entrenar_y_rendimiento_multis(100, 0.001, True, [0,1], votos_entr,
                                     votos_entr_clas, votos_valid,
                                     votos_valid_clas))
-#cl = Clasificador_RL_OvR(Clasificador_Perceptron, [0,1])
-#cl.entrena(votos_entr, votos_entr_clas, 100)
+
+#DIGITOS----------------------------------------------------------------------
+def imagenes_a_array(ruta):
+    archivo = open(ruta, 'r')
+    lineas = archivo.readlines()
+    n_imagenes = int(len(lineas)/28) + 1
+    array = np.zeros((n_imagenes, 28, 28))
+    n_imagen = 0
+    for n_imagen in range(n_imagenes):
+        for i in range(28):
+            for j in range(28):
+                if lineas[n_imagen+i][j] == "+":
+                    array[n_imagen, i, j] = 0.5
+                elif lineas[n_imagen+i][j] == "#":
+                    array[n_imagen, i, j] = 1
+    return array.reshape(n_imagenes, 784)
+
+def labels_a_array(ruta):
+    archivo = open(ruta, 'r')
+    lineas = archivo.readlines()
+    etiquetas = []
+    for linea in lineas:
+        etiquetas.append(int(linea))
+    return np.array(etiquetas)
+
+
+train = imagenes_a_array('/home/roberto/Documentos/us/practicas/aia/trabajo/digitdata/trainingimages')
+validation = imagenes_a_array('/home/roberto/Documentos/us/practicas/aia/trabajo/digitdata/validationimages')
+test = imagenes_a_array('/home/roberto/Documentos/us/practicas/aia/trabajo/digitdata/testimages')
+train_clas = labels_a_array('/home/roberto/Documentos/us/practicas/aia/trabajo/digitdata/traininglabels')
+validation_clas = labels_a_array('/home/roberto/Documentos/us/practicas/aia/trabajo/digitdata/validationlabels')
+test_clas = labels_a_array('/home/roberto/Documentos/us/practicas/aia/trabajo/digitdata/testlabels')
