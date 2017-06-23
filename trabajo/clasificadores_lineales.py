@@ -477,6 +477,11 @@ class Clasificador_RL_ML_St(Clasificador_RL):
                 o = self.sigmoide(ej)
                 self.pesos = self.pesos + rate_n * (clase-o) * ej
 
+#Funcion para etiquetar los resultados de los clasificadores
+
+def etiquetar(clases, prediccion):
+    return clases[prediccion]
+
 # --------------------------
 # I.3. Curvas de aprendizaje
 # --------------------------
@@ -684,14 +689,24 @@ def entrenar_y_dibujar_binarios(n_epochs, rate, rate_decay, normalizacion, n_dat
     RL_ML_St = Clasificador_RL_ML_St_Graph([0,1], normalizacion)
     #Entrenamientos
     valores = {}
-    valores['Perceptron'] = perceptron.entrena(X, Y, n_epochs, rate, rate_decay=rate_decay)
-    valores['RL_L2_Batch'] = RL_L2_Batch.entrena(X, Y, n_epochs, rate, rate_decay=rate_decay)
-    valores['RL_L2_St'] = RL_L2_St.entrena(X, Y, n_epochs, rate, rate_decay=rate_decay)
-    valores['RL_ML_Batch'] = RL_ML_Batch.entrena(X, Y, n_epochs, rate, rate_decay=rate_decay)
-    valores['RL_ML_St'] = RL_ML_St.entrena(X, Y, n_epochs, rate, rate_decay=rate_decay)
+    valores['Perceptron'] = perceptron.entrena(X, Y, n_epochs,
+                                               rate, rate_decay=rate_decay)
+    valores['RL_L2_Batch'] = RL_L2_Batch.entrena(X, Y, n_epochs,
+                                                 rate, rate_decay=rate_decay)
+    valores['RL_L2_St'] = RL_L2_St.entrena(X, Y, n_epochs,
+                                           rate, rate_decay=rate_decay)
+    valores['RL_ML_Batch'] = RL_ML_Batch.entrena(X, Y, n_epochs,
+                                                 rate, rate_decay=rate_decay)
+    valores['RL_ML_St'] = RL_ML_St.entrena(X, Y, n_epochs,
+                                           rate, rate_decay=rate_decay)
     #Graficos
     for titulo, valor in valores.items():
         dibujar_grafico(valor, titulo)
+
+
+
+#ALGUNAS CURVAS DE APRENDIZAJE EN IPython
+
 
 # ==================================
 # PARTE II: CLASIFICACIÓN MULTICLASE
