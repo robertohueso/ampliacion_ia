@@ -325,10 +325,6 @@ class Clasificador():
         
         self.entrenado = True
 
-    def clasifica_prob(self, ej):
-        if not self.entrenado:
-            raise ClasificadorNoEntrenado
-
     def clasifica(self, ej):
         if not self.entrenado:
             raise ClasificadorNoEntrenado
@@ -347,7 +343,8 @@ class Clasificador_RL(Clasificador):
         return 1 / (1 + np.exp(-wx))
     
     def clasifica_prob(self,ej):
-        super().clasifica_prob(ej)
+        if not self.entrenado:
+            raise ClasificadorNoEntrenado
         #Normalizacion
         if self.normalizacion:
             ej = (ej - self.media) / self.desviacion
@@ -356,10 +353,10 @@ class Clasificador_RL(Clasificador):
     
     def clasifica(self, ej):
         super().clasifica(ej)
-        if self.clasifica_prob(ej) >= 0.5:
-            return 1
+        if self.clasifica_prob(ej) < 0.5:
+            return self.clases[0]
         else:
-            return 0
+            return self.clases[1]
 
 #Clasificador Perceptron---------------------------------------------------
 class Clasificador_Perceptron(Clasificador):
@@ -546,7 +543,7 @@ def rendimiento(clf,X,Y):
             correctos += 1
     return correctos / total
 
-def dibujar_grafico(valores, titulo): 
+def dibujar_grafico_aciertos(valores, titulo): 
     plt.plot(range(1,len(valores)+1), valores, marker='o')
     plt.title(titulo)
     plt.xlabel('Epochs')
@@ -719,7 +716,7 @@ def entrenar_y_dibujar_binarios(n_epochs, rate, rate_decay, normalizacion, n_dat
                                            rate, rate_decay=rate_decay)
     #Graficos
     for titulo, valor in valores.items():
-        dibujar_grafico(valor, titulo)
+        dibujar_grafico_aciertos(valor, titulo)
 
 
 
@@ -855,22 +852,25 @@ class Clasificador_RL_Softmax():
         for clase in self.clases:
             self.pesos[clase] = np.random.uniform(-1, 1, len(entr[0]))
         
-        for clase in self.clases:
+        for clase_1 in self.clases:
             etiquetas = np.copy(clas_entr)
-            etiquetas = (etiquetas == clase).astype('int')
+            etiquetas = (etiquetas == clase_1).astype('int')
             rate_n = rate
             n = 1
             for i in range(n_epochs):
-                for ej, clasific in zip(entr, etiquetas):
+                permutacion = np.random.permutation(entr.shape[0])
+                sh_entr = entr[permutacion]
+                sh_clas_entr = etiquetas[permutacion]
+                for ej, clase in zip(sh_entr, sh_clas_entr):
                     if rate_decay:
                         rate_n = rate + (2 / n**1.5)
                         n += 1
                     sum_ewx = 0
-                    for clase in self.clases:
-                        sum_ewx += np.exp(np.inner(self.pesos[clase], ej))
-                    self.pesos[clase] = self.pesos[clase] + rate_n * \
-                                        (clasific - \
-                                        (np.exp(np.inner(self.pesos[clase], ej)) / \
+                    for clase_2 in self.clases:
+                        sum_ewx += np.exp(np.inner(self.pesos[clase_2], ej))
+                    self.pesos[clase_1] = self.pesos[clase_1] + rate_n * \
+                                        (clase - \
+                                        (np.exp(np.inner(self.pesos[clase_1], ej)) / \
                                          sum_ewx)) * ej
 
     def softmax(self, valores):
