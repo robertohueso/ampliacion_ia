@@ -374,7 +374,10 @@ class Clasificador_Perceptron(Clasificador):
         rate_n = rate
         n = 1
         for i in range(n_epochs):
-            for ej, clase in zip(entr, clas_entr):
+            permutacion = np.random.permutation(entr.shape[0])
+            sh_entr = entr[permutacion]
+            sh_clas_entr = clas_entr[permutacion]
+            for ej, clase in zip(sh_entr, sh_clas_entr):
                 if rate_decay:
                     rate_n = rate + (2 / n**1.5)
                     n += 1
@@ -428,7 +431,10 @@ class Clasificador_RL_L2_St(Clasificador_RL):
         rate_n = rate
         n = 1
         for i in range(n_epochs):
-            for ej, clase in zip(entr, clas_entr):
+            permutacion = np.random.permutation(entr.shape[0])
+            sh_entr = entr[permutacion]
+            sh_clas_entr = clas_entr[permutacion]
+            for ej, clase in zip(sh_entr, sh_clas_entr):
                 if rate_decay:
                     rate_n = rate + (2 / n**1.5)
                     n += 1
@@ -470,7 +476,10 @@ class Clasificador_RL_ML_St(Clasificador_RL):
         rate_n = rate
         n = 1
         for i in range(n_epochs):
-            for ej, clase in zip(entr, clas_entr):
+            permutacion = np.random.permutation(entr.shape[0])
+            sh_entr = entr[permutacion]
+            sh_clas_entr = clas_entr[permutacion]
+            for ej, clase in zip(sh_entr, sh_clas_entr):
                 if rate_decay:
                     rate_n = rate + (2 / n**1.5)
                     n += 1
@@ -479,7 +488,7 @@ class Clasificador_RL_ML_St(Clasificador_RL):
 
 #Funcion para etiquetar los resultados de los clasificadores
 
-def etiquetar(clases, prediccion):
+def etiqueta(clases, prediccion):
     return clases[prediccion]
 
 # --------------------------
@@ -558,8 +567,11 @@ class Clasificador_Perceptron_Graph(Clasificador):
         rate_n = rate
         n = 1
         for i in range(n_epochs):
+            permutacion = np.random.permutation(entr.shape[0])
+            sh_entr = entr[permutacion]
+            sh_clas_entr = clas_entr[permutacion]
             aciertos.append(rendimiento(self, entr, clas_entr))
-            for ej, clase in zip(entr, clas_entr):
+            for ej, clase in zip(sh_entr, sh_clas_entr):
                 if rate_decay:
                     rate_n = rate + (2 / n**1.5)
                     n += 1
@@ -618,8 +630,11 @@ class Clasificador_RL_L2_St_Graph(Clasificador_RL):
         rate_n = rate
         n = 1
         for i in range(n_epochs):
+            permutacion = np.random.permutation(entr.shape[0])
+            sh_entr = entr[permutacion]
+            sh_clas_entr = clas_entr[permutacion]
             aciertos.append(rendimiento(self, entr, clas_entr))
-            for ej, clase in zip(entr, clas_entr):
+            for ej, clase in zip(sh_entr, sh_clas_entr):
                 if rate_decay:
                     rate_n = rate + (2 / n**1.5)
                     n += 1
@@ -666,8 +681,11 @@ class Clasificador_RL_ML_St_Graph(Clasificador_RL):
         rate_n = rate
         n = 1
         for i in range(n_epochs):
+            permutacion = np.random.permutation(entr.shape[0])
+            sh_entr = entr[permutacion]
+            sh_clas_entr = clas_entr[permutacion]
             aciertos.append(rendimiento(self, entr, clas_entr))
-            for ej, clase in zip(entr, clas_entr):
+            for ej, clase in zip(sh_entr, sh_clas_entr):
                 if rate_decay:
                     rate_n = rate + (2 / n**1.5)
                     n += 1
