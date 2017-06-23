@@ -523,7 +523,7 @@ import matplotlib.pyplot as plt
 # extra puede enlentecer algo el proceso de entrenamiento y si fuera necesario
 # puede quitarse una vez se realize este apartado.
 
-#La defin antes para ahorrarme reescribir un codigo muy similar
+#La defino antes para ahorrarme reescribir un codigo muy similar
 def rendimiento(clf,X,Y):
     total = len(X)
     correctos = 0
@@ -692,9 +692,6 @@ def entrenar_y_dibujar_binarios(n_epochs, rate, rate_decay, normalizacion, n_dat
     #Graficos
     for titulo, valor in valores.items():
         dibujar_grafico(valor, titulo)
-
-entrenar_y_dibujar_binarios(n_epochs=100, rate=0.001, rate_decay=True, normalizacion=False,
-                   n_datos=600, dim_datos=4, rango=3, separables=False)
 
 # ==================================
 # PARTE II: CLASIFICACIÓN MULTICLASE
@@ -980,62 +977,4 @@ def entrenar_y_rendimiento_multis(n_epochs, rate, rate_decay,
     mejor_clasificador = max(resultado_val, key = resultado_val.get)
     return mejor_clasificador, resultado_val[mejor_clasificador]
 
-#VOTOS------------------------------------------------------------------------
-from votos import *
-print('---VOTOS---')
-for i, partido in enumerate(votos_entr_clas):
-    if partido == 'democrata':
-        votos_entr_clas[i] = 0
-    else:
-        votos_entr_clas[i] = 1
-for i, partido in enumerate(votos_valid_clas):
-    if partido == 'democrata':
-        votos_valid_clas[i] = 0
-    else:
-        votos_valid_clas[i] = 1
-for i, partido in enumerate(votos_test_clas):
-    if partido == 'democrata':
-        votos_test_clas[i] = 0
-    else:
-        votos_test_clas[i] = 1
-
-votos_entr = np.array(votos_entr)
-votos_entr_clas = np.array(votos_entr_clas)
-votos_valid = np.array(votos_valid)
-votos_valid_clas = np.array(votos_valid_clas)
-
-print(entrenar_y_rendimiento_multis(100, 0.001, True, [0,1], votos_entr,
-                                    votos_entr_clas, votos_valid,
-                                    votos_valid_clas))
-
-#DIGITOS----------------------------------------------------------------------
-def imagenes_a_array(ruta):
-    archivo = open(ruta, 'r')
-    lineas = archivo.readlines()
-    n_imagenes = int(len(lineas)/28) + 1
-    array = np.zeros((n_imagenes, 28, 28))
-    n_imagen = 0
-    for n_imagen in range(n_imagenes):
-        for i in range(28):
-            for j in range(28):
-                if lineas[n_imagen+i][j] == "+":
-                    array[n_imagen, i, j] = 0.5
-                elif lineas[n_imagen+i][j] == "#":
-                    array[n_imagen, i, j] = 1
-    return array.reshape(n_imagenes, 784)
-
-def labels_a_array(ruta):
-    archivo = open(ruta, 'r')
-    lineas = archivo.readlines()
-    etiquetas = []
-    for linea in lineas:
-        etiquetas.append(int(linea))
-    return np.array(etiquetas)
-
-
-train = imagenes_a_array('/home/roberto/Documentos/us/practicas/aia/trabajo/digitdata/trainingimages')
-validation = imagenes_a_array('/home/roberto/Documentos/us/practicas/aia/trabajo/digitdata/validationimages')
-test = imagenes_a_array('/home/roberto/Documentos/us/practicas/aia/trabajo/digitdata/testimages')
-train_clas = labels_a_array('/home/roberto/Documentos/us/practicas/aia/trabajo/digitdata/traininglabels')
-validation_clas = labels_a_array('/home/roberto/Documentos/us/practicas/aia/trabajo/digitdata/validationlabels')
-test_clas = labels_a_array('/home/roberto/Documentos/us/practicas/aia/trabajo/digitdata/testlabels')
+# PRUEBAS EN IPython
